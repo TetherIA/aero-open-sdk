@@ -2,7 +2,8 @@
 import serial
 import struct
 import time
-from aero_hand_lite.joints_to_actuations import JointsToActuationsModel
+import math
+from joints_to_actuations import JointsToActuationsModel
 
 ## Command Identifiers
 CTRL_POS = 0x01
@@ -34,7 +35,7 @@ ACTUATIONS_LOWER_LIMITS = [0.0, 0.0, -27.7778, 0.0, 0.0, 0.0, 0.0]
 ACTUATIONS_UPPER_LIMITS = [100.0, 131.8906, 274.9275, 288.1603, 288.1603, 288.1603, 288.1603]
 
 class AeroHand:
-    def __init__(self, port = None, baudrate=115200):
+    def __init__(self, port = None, baudrate=921600):
         ## Connect to the serial port
         if port is None:
             self.ser = None
@@ -117,6 +118,7 @@ class AeroHand:
         resp = self.ser.read(2 + 7 * 2)  # 2
         end_time = time.perf_counter()
         print(f"Time taken to read currents: {end_time - start_time:.6f} seconds")
+        #print("Raw Response:", resp)
         data = struct.unpack('<2B7H', resp)
         if data[0] != RX_CURR:
             raise ValueError("Invalid response from hand")
@@ -144,3 +146,36 @@ class AeroHand:
 
     def close(self):
         self.ser.close()
+
+
+if __name__ == "__main__":
+    hand = AeroHand("COM12")
+
+    # hand.set_joint_positions([10.0, 20.0, 30.0, 40.0] + [45.0] * 12)
+    while True:
+        try:
+            #hand.get_motor_temperatures()
+            step = 0
+            while True:
+                # First four joints vary slowly with sine waves
+                j0 = 30.0 + 5.0 * (1 + math.sin(step * 0.05))    # oscillates 10–20
+                j1 = 10.0 + 5.0 * (1 + math.sin(step * 0.07))    # oscillates 20–30
+                j2 = 10.0 + 5.0 * (1 + math.sin(step * 0.09))    # oscillates 30–40
+                j3 = 10.0 + 5.0 * (1 + math.sin(step * 0.11))    # oscillates 40–50
+
+                # Remaining 12 joints hover around 50 with small offsets
+                rest = [30.0 + 30.0 * math.sin(0.05 * step + i) for i in range(12)]
+
+                # Send positions to the hand
+                hand.set_joint_positions([j0, j1, j2, j3] + rest)
+
+                # Increment and sleep
+                step += 1
+                time.sleep(0.02)  # ~50 Hz update
+        except Exception as e:
+            print("Error:", e)
+            continue
+    # temps = hand.get_motor_currents()
+    # hand.close()
+
+    # print("Curent:", temps)
