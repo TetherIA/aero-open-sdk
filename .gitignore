@@ -1,7 +1,10 @@
-__pycache__
-
+## Env files
 .venv
 
-esp32-hand-controller
+## Cache files
+__pycache__
+*.egg-info
 
+## Test folders
 firmware
+esp32-hand-controller
