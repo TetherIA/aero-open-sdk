@@ -22,8 +22,8 @@ GET_CURR = 0x24
 GET_TEMP = 0x25
 
 # ## Rx indentifiers
-# RX_POS = 0x21
-# RX_VEL = 0x22
+RX_POS = 0x21
+RX_VEL = 0x22
 RX_CURR = 0x23
 RX_TEMP = 0x24
 
