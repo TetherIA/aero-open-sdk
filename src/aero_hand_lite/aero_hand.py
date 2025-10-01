@@ -104,6 +104,18 @@ class AeroHand:
 
         self._send_data(CTRL_POS, [int(a) for a in actuations])
 
+    def _set_id(self, id: int, current_limit: int):
+        """This fn is used by the GUI to set Motor IDs and current limits for the first time."""
+        if not (0 <= id <= 253):
+            raise ValueError("new_id must be 0..253")
+        if not (0 <= current_limit <= 1023):
+            raise ValueError("current_limit must be in between 0..1023")
+
+        payload = [0] * 7
+        payload[0] = id & 0xFF   # stored in low byte of word0
+        payload[1] = current_limit & 0x03FF
+        self._send_data(SET_ID_MODE, payload)
+
     def _send_data(self, header: int, payload: list[int] = [0] * 7):
         assert self.ser is not None, "Serial port is not initialized"
         assert len(payload) == 7, "Payload must be a list of 7 integers in Range 0-65535"
@@ -130,7 +142,13 @@ class AeroHand:
         Returns:
             list: A list of 7 motor positions. (degrees)
         """
-        return self._get_info(GET_POS)
+        self._send_data(GET_POS)
+        ## Read the response
+        resp = self.ser.read(2 + 7 * 2)  # 2
+        data = struct.unpack("<2B7H", resp)
+        if data[0] != GET_POS:
+            raise ValueError("Invalid response from hand")
+        return data[2:]
 
     def get_motor_currents(self):
         """
@@ -138,7 +156,13 @@ class AeroHand:
         Returns:
             list: A list of 7 motor currents. (mA)
         """
-        return self._get_info(GET_CURR)
+        self._send_data(GET_CURR)
+        ## Read the response
+        resp = self.ser.read(2 + 7 * 2)  # 2
+        data = struct.unpack("<2B7h", resp)
+        if data[0] != GET_CURR:
+            raise ValueError("Invalid response from hand")
+        return data[2:]
 
     def get_motor_temperatures(self):
         """
@@ -146,7 +170,13 @@ class AeroHand:
         Returns:
             list: A list of 7 motor temperatures. (Degree Celsius)
         """
-        return self._get_info(GET_TEMP)
+        self._send_data(GET_TEMP)
+        ## Read the response
+        resp = self.ser.read(2 + 7 * 2)  # 2
+        data = struct.unpack("<2B7H", resp)
+        if data[0] != GET_TEMP:
+            raise ValueError("Invalid response from hand")
+        return data[2:]
 
     def get_motor_speed(self):
         """
@@ -154,21 +184,11 @@ class AeroHand:
         Returns:
             list: A list of 7 motor speeds. (RPM)
         """
-        return self._get_info(GET_VEL)
-
-    def _get_info(self, code: int):
-        """
-        Get the info from the hand.
-        Args:
-            code (int): The info code to get.
-        Returns:
-            list: A list of 7 info values.
-        """
-        self._send_data(code)
+        self._send_data(GET_VEL)
         ## Read the response
         resp = self.ser.read(2 + 7 * 2)  # 2
-        data = struct.unpack("<2B7H", resp)
-        if data[0] != code:
+        data = struct.unpack("<2B7h", resp)
+        if data[0] != GET_VEL:
             raise ValueError("Invalid response from hand")
         return data[2:]
 
