@@ -106,7 +106,8 @@ class AeroHand:
 
     def _send_data(self, header: int, payload: list[int] = [0] * 7):
         assert self.ser is not None, "Serial port is not initialized"
-        assert len(payload) == 7, "Payload must be a list of 7 integers"
+        assert len(payload) == 7, "Payload must be a list of 7 integers in Range 0-65535"
+        assert all(0 <= v <= 65535 for v in payload), "Payload values must be in Range 0-65535"
         msg = struct.pack("<2B7H", header & 0xFF, 0x00, *(v & 0xFFFF for v in payload))
         self.ser.write(msg)
         self.ser.flush()
