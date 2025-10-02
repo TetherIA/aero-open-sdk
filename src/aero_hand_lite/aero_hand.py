@@ -116,15 +116,15 @@ class AeroHand:
         payload[1] = current_limit & 0x03FF
         self._send_data(SET_ID_MODE, payload)
     
-    def send_trim_mode(self, channel: int, delta_counts: int):
+    def send_trim_mode(self, channel: int, degrees: int):
         """This fn is used by the GUI to fine tune the motor positions."""
         if not (0 <= channel <= 14):
             raise ValueError("channel must be 0..14")
-        if not (-4095 <= delta_counts <= 4095):
-            raise ValueError("delta_counts out of range")
+        if not (-360 <= degrees <= 360):
+            raise ValueError("degrees out of range")
         payload = [0] * 7
         payload[0] = channel & 0xFFFF
-        payload[1] = delta_counts & 0xFFFF  
+        payload[1] = degrees & 0xFFFF  
         self._send_data(TRIM_MODE, payload)
 
     def _send_data(self, header: int, payload: list[int] = [0] * 7):
