@@ -7,10 +7,3 @@ if __name__ == "__main__":
     )
     
     hand.send_homing()
-    try:
-        while True:
-            line = hand.ser.readline().decode(errors="ignore").strip()
-            if line:
-                print(line)
-    except KeyboardInterrupt:
-        pass

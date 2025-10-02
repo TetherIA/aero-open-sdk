@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import serial
 import struct
+import time 
 
 from aero_hand_lite.joints_to_actuations import JointsToActuationsModel
 
@@ -104,28 +105,55 @@ class AeroHand:
 
         self._send_data(CTRL_POS, [int(a) for a in actuations])
 
-    def _set_id(self, id: int, current_limit: int):
+    def _wait_for_ack(self, opcode: int, timeout_s: float) -> bool:
+        deadline = time.monotonic() + timeout_s
+        while time.monotonic() < deadline:
+            frame = self.ser.read(16)
+            if len(frame) != (16):
+                continue 
+            if frame[0] == (opcode & 0xFF) and frame[1] == 0x00:
+                return frame[2:]
+        raise TimeoutError(f"ACK (opcode 0x{opcode:02X}) not received within {timeout_s}s")
+    
+    def set_id(self, id: int, current_limit: int):
         """This fn is used by the GUI to set Motor IDs and current limits for the first time."""
         if not (0 <= id <= 253):
             raise ValueError("new_id must be 0..253")
         if not (0 <= current_limit <= 1023):
             raise ValueError("current_limit must be in between 0..1023")
+        
+        try:
+            self.ser.reset_input_buffer()
+        except Exception:
+            pass
 
         payload = [0] * 7
         payload[0] = id & 0xFF   # stored in low byte of word0
         payload[1] = current_limit & 0x03FF
         self._send_data(SET_ID_MODE, payload)
+        payload = self._wait_for_ack(SET_ID_MODE, 1.0)
+        old_id, new_id, cur_limit = struct.unpack_from("<HHH", payload, 0)
+        return {"Old_id": old_id, "New_id": new_id, "Current_limit": cur_limit}
     
-    def send_trim_mode(self, channel: int, degrees: int):
+    def trim_servo(self, channel: int, degrees: int):
         """This fn is used by the GUI to fine tune the motor positions."""
         if not (0 <= channel <= 14):
             raise ValueError("channel must be 0..14")
         if not (-360 <= degrees <= 360):
             raise ValueError("degrees out of range")
+        
+        try:
+            self.ser.reset_input_buffer()
+        except Exception:
+            pass
+        
         payload = [0] * 7
         payload[0] = channel & 0xFFFF
         payload[1] = degrees & 0xFFFF  
         self._send_data(TRIM_MODE, payload)
+        payload = self._wait_for_ack(TRIM_MODE, 1.0)
+        id, extend = struct.unpack_from("<HH", payload, 0)
+        return {"Servo ID": id, "Extend Count": extend}
 
     def _send_data(self, header: int, payload: list[int] = [0] * 7):
         assert self.ser is not None, "Serial port is not initialized"
@@ -135,8 +163,17 @@ class AeroHand:
         self.ser.write(msg)
         self.ser.flush()
 
-    def send_homing(self):
-        self._send_data(HOMING_MODE)
+    def send_homing(self, timeout_s: float = 100.0):
+        try:
+            self.ser.reset_input_buffer()
+        except Exception:
+            pass
+        self._send_data(HOMING_MODE) 
+        payload = self._wait_for_ack(HOMING_MODE, timeout_s)
+        if all(b == 0 for b in payload):
+            return True
+        else:
+            raise ValueError(f"Unexpected HOMING payload: {payload.hex()}")
 
     def send_zero(self):
         self._send_data(ZERO_MODE)

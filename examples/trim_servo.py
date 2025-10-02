@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-import time
 from aero_hand_lite.aero_hand import AeroHand
 
 if __name__ == "__main__":
-    hand = AeroHand("COM12")  # Update this to your serial port (e.g., "/dev/ttyUSB0" on Linux or "COM3" on Windows)
-    # Example: trim channel 5 by +50 degrees
-    hand.send_trim_mode(channel=5, degrees=50)
-    print("Sent trim: channel=5, +50°")
+    hand = AeroHand(
+        "/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_D8:3B:DA:45:CA:08-if00"
+    )
+
+    ack = hand.trim_servo(channel=3, degrees=200)
+    print("Trim Acknowledgement:", ack)
