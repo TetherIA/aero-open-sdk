@@ -6,7 +6,11 @@ if __name__ == "__main__":
         "/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_D8:3B:DA:45:CA:08-if00"
     )
 
-    ## Perfrom homing
-    ## NOTE: While performing homing, robot will not respond to any other commands.
-    ## Make sure the hand is in a safe position to perform homing.
     hand.send_homing()
+    try:
+        while True:
+            line = hand.ser.readline().decode(errors="ignore").strip()
+            if line:
+                print(line)
+    except KeyboardInterrupt:
+        pass
