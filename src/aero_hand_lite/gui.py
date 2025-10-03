@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-firmware_gui.py - Minimal GUI for TehterIA Aero Hand (16-byte serial protocol)
+firmware_gui.py - Minimal GUI for TetherIA Aero Hand (16-byte serial protocol)
 
 A simple Tkinter GUI to control the TetherIA Aero Hand via serial port:
 - "Start Homing": sends a HOMING command 16 byte packet to the ESP.
