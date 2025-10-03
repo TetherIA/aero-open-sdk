@@ -32,6 +32,18 @@ from serial.tools import list_ports
 
 # Make sure this import points to your actual package path.
 from aero_hand_lite.aero_hand import AeroHand
+# ---- opcodes ------------
+HOMING_MODE = 0x01
+SET_ID_MODE = 0x03
+TRIM_MODE   = 0x04
+
+CTRL_POS = 0x11
+
+GET_ALL  = 0x21
+GET_POS  = 0x22
+GET_VEL  = 0x23
+GET_CURR = 0x24
+GET_TEMP = 0x25
 # ---- GUI ---------------------------------------------------------------------
 BAUDS = [
     9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600
