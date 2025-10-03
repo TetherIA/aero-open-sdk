@@ -7,9 +7,8 @@ from aero_hand_lite.joints_to_actuations import JointsToActuationsModel
 
 ## Setup Modes
 HOMING_MODE = 0x01
-ZERO_MODE = 0x02
-SET_ID_MODE = 0x03
-TRIM_MODE = 0x04
+SET_ID_MODE = 0x02
+TRIM_MODE = 0x03
 
 ## Command Modes
 CTRL_POS = 0x11
@@ -146,7 +145,7 @@ class AeroHand:
             self.ser.reset_input_buffer()
         except Exception:
             pass
-        
+
         payload = [0] * 7
         payload[0] = channel & 0xFFFF
         payload[1] = degrees & 0xFFFF  
@@ -163,7 +162,7 @@ class AeroHand:
         self.ser.write(msg)
         self.ser.flush()
 
-    def send_homing(self, timeout_s: float = 100.0):
+    def send_homing(self, timeout_s: float = 175.0):
         try:
             self.ser.reset_input_buffer()
         except Exception:
@@ -174,9 +173,6 @@ class AeroHand:
             return True
         else:
             raise ValueError(f"Unexpected HOMING payload: {payload.hex()}")
-
-    def send_zero(self):
-        self._send_data(ZERO_MODE)
 
     def get_forward_kinematics(self):
         raise NotImplementedError("This method is not yet implemented")
