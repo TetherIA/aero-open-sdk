@@ -108,7 +108,7 @@ class AeroHand:
         deadline = time.monotonic() + timeout_s
         while time.monotonic() < deadline:
             frame = self.ser.read(16)
-            if len(frame) != (16):
+            if len(frame) != 16:
                 continue 
             if frame[0] == (opcode & 0xFF) and frame[1] == 0x00:
                 return frame[2:]
