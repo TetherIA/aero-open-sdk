@@ -104,7 +104,7 @@ class AeroHand:
 
         self._send_data(CTRL_POS, [int(a) for a in actuations])
 
-    def _wait_for_ack(self, opcode: int, timeout_s: float) -> bool:
+    def _wait_for_ack(self, opcode: int, timeout_s: float) -> bytes:
         deadline = time.monotonic() + timeout_s
         while time.monotonic() < deadline:
             frame = self.ser.read(16)
