@@ -194,18 +194,18 @@ class App(tk.Tk):
     # ------------- connect/disconnect -------------
     def on_connect(self):
         if self.hand is not None:
-            return
+            return False  # Already connected
         port = self.port_var.get().strip()
         if not port:
             messagebox.showerror("Error", "Select a serial port.")
-            return
+            return False
         try:
             self.tx_rate_hz = float(self.rate_spin.get().strip())
             if self.tx_rate_hz <= 0:
                 raise ValueError
         except Exception:
             messagebox.showerror("Error", "Rate must be a positive number.")
-            return
+            return False
 
         baud = int(self.baud_var.get())
         try:
@@ -223,9 +223,11 @@ class App(tk.Tk):
 
             self.set_status(f"Connected to {port} @ {baud}")
             self.log(f"[info] Connected {port} @ {baud}")
+            return True  # Success!
         except Exception as e:
             self.hand = None
             messagebox.showerror("Open failed", str(e))
+            return False  # Failure
 
     def on_disconnect(self):
         self._shutdown_serial()
@@ -453,14 +455,27 @@ class App(tk.Tk):
                 self.after(0, lambda: messagebox.showerror("Flash failed", str(e)))
 
             max_attempts = 3
-            for attempt in range(max_attempts):
-                time.sleep(1.5)  # Wait 1.5 seconds between attempts
-                try:
-                    self.after(0, self.on_connect)
-                    self.log(f"[flash] Reconnect attempt {attempt+1}...")
-                    break  # If successful, exit loop
-                except Exception as e:
-                    self.log(f"[flash] Reconnect failed (attempt {attempt+1}): {e}")
+            for attempt in range(1, max_attempts + 1):
+                time.sleep(1.5) 
+                self.log(f"[flash] Reconnect attempt {attempt}...")
+                result = {'ok': False}
+                done = threading.Event()
+                def _do_connect():
+                    try:
+                        ok = bool(self.on_connect()) 
+                        result['ok'] = ok
+                    except Exception as e:
+                        self.log(f"[flash] on_connect raised: {e}")
+                        result['ok'] = False
+                    finally:
+                        done.set()
+                self.after(0, _do_connect)
+                if not done.wait(3.0): 
+                    self.log("[flash] connect timed out")
+                    continue                   
+                if result['ok']:
+                    self.log("[flash] Reconnected ✅")
+                    break                     
             else:
                 self.after(0, lambda: self.set_status("Reconnect failed after flashing"))
 
@@ -486,11 +501,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-import sys
-if sys.platform.startswith("linux"):
-    import ctypes
-    try:
-        ctypes.cdll.LoadLibrary("libX11.so").XInitThreads()
-    except Exception:
-        pass
