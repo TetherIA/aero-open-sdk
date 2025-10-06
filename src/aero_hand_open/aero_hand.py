@@ -130,7 +130,7 @@ class AeroHand:
         payload[0] = id & 0xFF   # stored in low byte of word0
         payload[1] = current_limit & 0x03FF
         self._send_data(SET_ID_MODE, payload)
-        payload = self._wait_for_ack(SET_ID_MODE, 1.0)
+        payload = self._wait_for_ack(SET_ID_MODE, 5.0)
         old_id, new_id, cur_limit = struct.unpack_from("<HHH", payload, 0)
         return {"Old_id": old_id, "New_id": new_id, "Current_limit": cur_limit}
     
