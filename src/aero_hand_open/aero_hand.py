@@ -3,7 +3,7 @@ import serial
 import struct
 import time 
 
-from aero_hand_lite.joints_to_actuations import JointsToActuationsModel
+from aero_hand_open.joints_to_actuations import JointsToActuationsModel
 
 ## Setup Modes
 HOMING_MODE = 0x01
