@@ -14,10 +14,6 @@ A simple Tkinter GUI to control the TetherIA Aero Hand via serial port:
 - Auto-detects merged vs app-only .bin files for flashing.
 - Handles esptool installation if missing.
 - Uses pyserial for serial communication.
-
-Requires:
-  pip install pyserial
-  (the uploader auto-installs esptool if missing)
 """
 import sys
 import os
@@ -32,7 +28,7 @@ from serial.tools import list_ports
 
 # Make sure this import points to your actual package path.
 from aero_hand_lite.aero_hand import AeroHand
-# ---- opcodes ------------
+# ---- operation codes ------------
 HOMING_MODE = 0x01
 SET_ID_MODE = 0x03
 TRIM_MODE   = 0x04
