@@ -132,7 +132,7 @@ class App(tk.Tk):
         self.btn_flash.pack(side=tk.LEFT, padx=(0, 10))
 
         # Zero All Button
-        self.btn_zero = ttk.Button(cmd, text="Zero All", command=self.on_zero_all, state=tk.DISABLED)
+        self.btn_zero = ttk.Button(cmd, text="Set to Extend", command=self.on_zero_all, state=tk.DISABLED)
         self.btn_zero.pack(side=tk.LEFT, padx=(0, 10))
 
         # GET buttons
