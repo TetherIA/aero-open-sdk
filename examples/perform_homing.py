@@ -7,6 +7,6 @@ if __name__ == "__main__":
     )
 
     ## Perform homing
-    ## NOTE: While performing homing, robot will not respond to any other commands unless it receives an ACK under a given timeout.
+    ## NOTE: While performing homing, robot will not respond to any other commands.
     ## Make sure the hand is in a safe position to perform homing.
     hand.send_homing()
