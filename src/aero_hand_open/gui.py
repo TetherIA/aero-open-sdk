@@ -26,6 +26,7 @@ from tkinter import ttk, messagebox, simpledialog, filedialog
 from serial.tools import list_ports
 
 from aero_hand_open.aero_hand import AeroHand
+
 # ---- operation codes ------------
 HOMING_MODE = 0x01
 SET_ID_MODE = 0x03
