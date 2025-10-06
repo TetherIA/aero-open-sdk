@@ -20,17 +20,6 @@ import os
 import threading
 import time
 import subprocess
-
-# -- Linux X11 thread fix ----
-if sys.platform.startswith("linux"):
-    import ctypes
-    try:
-        # Initialize Xlib threading before any Tkinter calls
-        ctypes.cdll.LoadLibrary("libX11.so").XInitThreads()
-        print("[info] XInitThreads() called for X11 thread safety")
-    except Exception as e:
-        print(f"[warn] XInitThreads() failed: {e}")
-
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog, filedialog
 
