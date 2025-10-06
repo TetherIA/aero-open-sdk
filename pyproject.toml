@@ -8,3 +8,5 @@ dependencies = [
     "esptool>=5.1.0",
     "pyserial>=3.5",
 ]
+[project.scripts]
+aero-hand-gui = "aero_hand_open.gui:main"
