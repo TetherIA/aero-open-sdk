@@ -463,8 +463,7 @@ class App(tk.Tk):
                 self.log(f"[flash] {e}")
                 self.after(0, lambda: messagebox.showerror("Flash failed", str(e)))
 
-            # Wait and retry connecting to the port
-            max_attempts = 10
+            max_attempts = 3
             for attempt in range(max_attempts):
                 time.sleep(1.5)  # Wait 1.5 seconds between attempts
                 try:
