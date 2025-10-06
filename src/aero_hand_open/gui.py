@@ -20,6 +20,17 @@ import os
 import threading
 import time
 import subprocess
+
+# -- Linux X11 thread fix ----
+if sys.platform.startswith("linux"):
+    import ctypes
+    try:
+        # Initialize Xlib threading before any Tkinter calls
+        ctypes.cdll.LoadLibrary("libX11.so").XInitThreads()
+        print("[info] XInitThreads() called for X11 thread safety")
+    except Exception as e:
+        print(f"[warn] XInitThreads() failed: {e}")
+
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog, filedialog
 
@@ -66,7 +77,7 @@ class App(tk.Tk):
         self.stop_event = threading.Event()
         self.control_paused = False  # pause streaming during blocking ops
         self.tx_rate_hz = 40.0       # streaming rate for CTRL_POS
-        self.slider_vars: list[tk.IntVar] = []
+        self.slider_vars: list[tk.DoubleVar] = []  # Change to DoubleVar
         self.port_var = tk.StringVar()
         self.baud_var = tk.IntVar(value=921600)
 
@@ -143,14 +154,14 @@ class App(tk.Tk):
             row.pack(fill=tk.X, pady=5)
 
             ttk.Label(row, text=f"{i} – {name}", width=18).pack(side=tk.LEFT)
-            var = tk.IntVar(value=0)
+            var = tk.DoubleVar(value=0.0)  # Use DoubleVar
             self.slider_vars.append(var)
-            scale = tk.Scale(row, from_=0, to=65535, orient=tk.HORIZONTAL, length=600,
-                             resolution=1, variable=var, showvalue=True)
+            scale = tk.Scale(row, from_=0.0, to=1.0, orient=tk.HORIZONTAL, length=600,
+                             resolution=0.001, variable=var, showvalue=True)
             scale.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6, 6))
-            val_lbl = ttk.Label(row, text="0", width=8)
+            val_lbl = ttk.Label(row, text="0.0", width=8)
             val_lbl.pack(side=tk.LEFT)
-            var.trace_add("write", lambda *_a, v=var, lbl=val_lbl: lbl.config(text=str(v.get())))
+            var.trace_add("write", lambda *_a, v=var, lbl=val_lbl: lbl.config(text=f"{v.get():.1f}"))
 
         # ---- RX log
         rx = ttk.LabelFrame(self, text="RX Log", padding=10)
@@ -261,7 +272,7 @@ class App(tk.Tk):
         next_t = time.perf_counter()
         while not self.stop_event.is_set():
             if self.hand is not None and not self.control_paused:
-                payload = [int(v.get()) & 0xFFFF for v in self.slider_vars]
+                payload = [int(v.get() * 65535) & 0xFFFF for v in self.slider_vars]  # Convert to 0..65535
                 try:
                     self.hand._send_data(CTRL_POS, payload)
                 except Exception as e:
@@ -330,8 +341,8 @@ class App(tk.Tk):
             try:
                 self.control_paused = True
                 for var in self.slider_vars:
-                    var.set(0)
-                joint_pos = list(self.hand.joint_lower_limits)  # 16 values
+                    var.set(0.0)  # Set to 0.0 for normalized slider
+                joint_pos = list(self.hand.joint_lower_limits)
                 self.hand.set_joint_positions(joint_pos)
                 self.log("[TX] ZERO_ALL via CTRL_POS (joint lower limits)")
                 self.set_status("Zeroed (lower limits sent; sliders reset)")
@@ -378,7 +389,8 @@ class App(tk.Tk):
             return
         try:
             vals = self.hand.get_motor_positions()
-            self.log(f"[GET_POS] {list(vals)}")
+            norm_vals = [round(v / 65535, 3) for v in vals]  # Normalize for display
+            self.log(f"[GET_POS] {norm_vals}")
         except Exception as e:
             self.log(f"[err] GET_POS: {e}")
 
@@ -422,15 +434,11 @@ class App(tk.Tk):
         if not port:
             return
 
-        # Best effort chip guess; you can hardcode "esp32s3" if you want
         chip = "auto"
-
-        # Decide offset: merged at 0x0, otherwise 0x10000
         name = os.path.basename(bin_path).lower()
         merged = ("merged" in name) or ("with_bootloader" in name) or name.endswith(".merged.bin")
         offset = "0x0" if merged else "0x10000"
 
-        # Close serial if open
         if self.hand:
             self.log("[flash] Closing serial before flashing…")
             self.on_disconnect()
@@ -451,14 +459,10 @@ class App(tk.Tk):
                 else:
                     self.log(f"[flash] esptool exited with code {rc}")
                     messagebox.showerror("Flash failed", f"esptool exited with code {rc}")
-            except FileNotFoundError:
-                self.log("[flash] esptool not found. Install with: pip install esptool")
-                messagebox.showerror("Flash failed", "esptool not found. pip install esptool")
             except Exception as e:
                 self.log(f"[flash] {e}")
                 messagebox.showerror("Flash failed", str(e))
 
-            # try to reconnect using current UI selections
             try:
                 self.on_connect()
             except Exception:
@@ -486,3 +490,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+import sys
+if sys.platform.startswith("linux"):
+    import ctypes
+    try:
+        ctypes.cdll.LoadLibrary("libX11.so").XInitThreads()
+    except Exception:
+        pass
