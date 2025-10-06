@@ -3,7 +3,7 @@ import serial
 import struct
 import time 
 
-from aero_hand_open.joints_to_actuations import JointsToActuationsModel
+from aero_hand_open.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
 
 ## Setup Modes
 HOMING_MODE = 0x01
@@ -57,6 +57,8 @@ _ACTUATIONS_UPPER_LIMITS = [
 
 _UINT16_MAX = 65535
 
+_RAD_TO_DEG = 180.0 / 3.141592653589793
+
 
 class AeroHand:
     def __init__(self, port=None, baudrate=921600):
@@ -70,6 +72,9 @@ class AeroHand:
         self.joint_names = _JOINT_NAMES
         self.joint_lower_limits = _JOINT_LOWER_LIMITS
         self.joint_upper_limits = _JOINT_UPPER_LIMITS
+
+        self.actuations_lower_limits = _ACTUATIONS_LOWER_LIMITS
+        self.actuations_upper_limits = _ACTUATIONS_UPPER_LIMITS
 
         self.joints_to_actuations_model = JointsToActuationsModel()
 
@@ -96,8 +101,51 @@ class AeroHand:
 
         ## Normalize actuation to uint16 range. (0-65535)
         actuations = [
-            (actuations[i] - _ACTUATIONS_LOWER_LIMITS[i])
-            / (_ACTUATIONS_UPPER_LIMITS[i] - _ACTUATIONS_LOWER_LIMITS[i])
+            (actuations[i] - self.actuations_lower_limits[i])
+            / (self.actuations_upper_limits[i] - self.actuations_lower_limits[i])
+            * _UINT16_MAX
+            for i in range(7)
+        ]
+
+        self._send_data(CTRL_POS, [int(a) for a in actuations])
+
+    def tendon_to_motor_angle(self, tendon_extension: float) -> float:
+        """
+        Convert tendon extension (mm) to motor angle (degrees).
+        Args:
+            tendon_extension (float): Tendon extension in mm.
+        Returns:
+            float: Motor angle in degrees.
+        """
+
+        return (tendon_extension / MOTOR_PULLEY_RADIUS) * _RAD_TO_DEG
+
+    def set_actuations(self, actuations: list):
+        """
+        This function is use to set the actuations of the hand directly.
+        Use this with caution as Thumb acutations are not independent i.e. setting one
+        actuations requires changes in other acutations. We use the joint to 
+        actuations model to handle this. But this function give you direct access.
+        If the actuations are not coupled correctly, it will cause Thumb tendons to
+        derail.
+        Args:
+            actuations (list): A list of 7 motor actuations in degrees.
+        """
+        assert len(actuations) == 7, "Expected 7 Actuations"
+
+        ## Clamp the actuations to the limits.
+        actuations = [
+            max(
+                self.actuations_lower_limits[i],
+                min(actuations[i], self.actuations_upper_limits[i]),
+            )
+            for i in range(7)
+        ]
+
+        ## Normalize actuation to uint16 range. (0-65535)
+        actuations = [
+            (actuations[i] - self.actuations_lower_limits[i])
+            / (self.actuations_upper_limits[i] - self.actuations_lower_limits[i])
             * _UINT16_MAX
             for i in range(7)
         ]
