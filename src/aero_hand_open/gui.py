@@ -450,7 +450,7 @@ class App(tk.Tk):
                     self.after(0, lambda: messagebox.showinfo("Success", "Firmware flashed successfully."))
                 else:
                     self.log(f"[flash] esptool exited with code {rc}")
-                    self.after(0, lambda: messagebox.showerror("Flash failed", f"esptool exited with code {rc}"))
+                    self.after(0, lambda rc=rc: messagebox.showerror("Flash failed", f"esptool exited with code {rc}"))
             except Exception as e:
                 self.log(f"[flash] {e}")
                 self.after(0, lambda: messagebox.showerror("Flash failed", str(e)))
