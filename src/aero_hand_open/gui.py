@@ -23,10 +23,8 @@ import subprocess
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog, filedialog
 
-import serial
 from serial.tools import list_ports
 
-# Make sure this import points to your actual package path.
 from aero_hand_open.aero_hand import AeroHand
 # ---- operation codes ------------
 HOMING_MODE = 0x01
