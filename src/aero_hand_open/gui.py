@@ -455,18 +455,26 @@ class App(tk.Tk):
                 rc = proc.wait()
                 if rc == 0:
                     self.log("[flash] Flash complete.")
-                    messagebox.showinfo("Success", "Firmware flashed successfully.")
+                    self.after(0, lambda: messagebox.showinfo("Success", "Firmware flashed successfully."))
                 else:
                     self.log(f"[flash] esptool exited with code {rc}")
-                    messagebox.showerror("Flash failed", f"esptool exited with code {rc}")
+                    self.after(0, lambda: messagebox.showerror("Flash failed", f"esptool exited with code {rc}"))
             except Exception as e:
                 self.log(f"[flash] {e}")
-                messagebox.showerror("Flash failed", str(e))
+                self.after(0, lambda: messagebox.showerror("Flash failed", str(e)))
 
-            try:
-                self.on_connect()
-            except Exception:
-                pass
+            # Wait and retry connecting to the port
+            max_attempts = 10
+            for attempt in range(max_attempts):
+                time.sleep(1.5)  # Wait 1.5 seconds between attempts
+                try:
+                    self.after(0, self.on_connect)
+                    self.log(f"[flash] Reconnect attempt {attempt+1}...")
+                    break  # If successful, exit loop
+                except Exception as e:
+                    self.log(f"[flash] Reconnect failed (attempt {attempt+1}): {e}")
+            else:
+                self.after(0, lambda: self.set_status("Reconnect failed after flashing"))
 
         threading.Thread(target=worker, daemon=True).start()
 
