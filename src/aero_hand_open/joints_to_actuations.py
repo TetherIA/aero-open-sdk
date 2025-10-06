@@ -27,7 +27,7 @@ class ThumbIPCoeffs:
 
 class JointsToActuationsModel:
     """
-    A model to convert joint positions to actuator movements for the Aero Hand Lite.
+    A model to convert joint positions to actuator movements for the Aero Hand Open.
     """
 
     def __init__(self) -> None:
