@@ -453,7 +453,7 @@ class App(tk.Tk):
                     self.after(0, lambda rc=rc: messagebox.showerror("Flash failed", f"esptool exited with code {rc}"))
             except Exception as e:
                 self.log(f"[flash] {e}")
-                self.after(0, lambda: messagebox.showerror("Flash failed", str(e)))
+                self.after(0, lambda e=e: messagebox.showerror("Flash failed", str(e)))
 
             max_attempts = 3
             for attempt in range(1, max_attempts + 1):
