@@ -60,13 +60,14 @@ class App(tk.Tk):
         self.title("TetherIA – Aero Hand")
         self.geometry("900x620")
         self.minsize(860, 560)
+        self.state('zoomed')
 
         # runtime state
         self.hand: AeroHand | None = None
         self.tx_thread: threading.Thread | None = None
         self.stop_event = threading.Event()
         self.control_paused = False  # pause streaming during blocking ops
-        self.tx_rate_hz = 40.0       # streaming rate for CTRL_POS
+        self.tx_rate_hz = 50.0       # streaming rate for CTRL_POS
         self.slider_vars: list[tk.DoubleVar] = []  # Change to DoubleVar
         self.port_var = tk.StringVar()
         self.baud_var = tk.IntVar(value=921600)
@@ -102,7 +103,7 @@ class App(tk.Tk):
         ttk.Label(top, text="Rate (Hz):").pack(side=tk.LEFT)
         self.rate_spin = ttk.Spinbox(top, from_=1, to=200, width=6)
         self.rate_spin.delete(0, tk.END)
-        self.rate_spin.insert(0, "40")
+        self.rate_spin.insert(0, "50")
         self.rate_spin.pack(side=tk.LEFT, padx=(4, 0))
 
         # ---- Commands row
@@ -130,10 +131,12 @@ class App(tk.Tk):
         self.btn_get_vel  = ttk.Button(cmd, text="GET_VEL",  command=self.on_get_vel,  state=tk.DISABLED)
         self.btn_get_cur  = ttk.Button(cmd, text="GET_CURR", command=self.on_get_cur,  state=tk.DISABLED)
         self.btn_get_temp = ttk.Button(cmd, text="GET_TEMP", command=self.on_get_temp, state=tk.DISABLED)
+        self.btn_get_all  = ttk.Button(cmd, text="GET_ALL",  command=self.on_get_all,  state=tk.DISABLED)
         self.btn_get_pos.pack(side=tk.LEFT, padx=(20, 6))
         self.btn_get_vel.pack(side=tk.LEFT, padx=6)
         self.btn_get_cur.pack(side=tk.LEFT, padx=6)
         self.btn_get_temp.pack(side=tk.LEFT, padx=6)
+        self.btn_get_all.pack(side=tk.LEFT, padx=(20, 6))
 
         # ---- Sliders (7)
         grp = ttk.LabelFrame(self, text="Sliders (send CTRL_POS payload 0..65535)", padding=10)
@@ -219,7 +222,7 @@ class App(tk.Tk):
             self.btn_connect.configure(state=tk.DISABLED)
             self.btn_disc.configure(state=tk.NORMAL)
             for b in (self.btn_zero,self.btn_homing, self.btn_setid, self.btn_trim,
-                      self.btn_get_pos, self.btn_get_vel, self.btn_get_cur, self.btn_get_temp):
+                      self.btn_get_pos, self.btn_get_vel, self.btn_get_cur, self.btn_get_temp, self.btn_get_all):
                 b.configure(state=tk.NORMAL)
 
             self.set_status(f"Connected to {port} @ {baud}")
@@ -253,7 +256,7 @@ class App(tk.Tk):
         self.btn_connect.configure(state=tk.NORMAL)
         self.btn_disc.configure(state=tk.DISABLED)
         for b in (self.btn_zero,self.btn_homing, self.btn_setid, self.btn_trim,
-                  self.btn_get_pos, self.btn_get_vel, self.btn_get_cur, self.btn_get_temp):
+                  self.btn_get_pos, self.btn_get_vel, self.btn_get_cur, self.btn_get_temp, self.btn_get_all):
             b.configure(state=tk.DISABLED)
         self.set_status("Disconnected")
         self.log("[info] Disconnected")
@@ -412,6 +415,19 @@ class App(tk.Tk):
             self.log(f"[GET_TEMP] {list(vals)}")
         except Exception as e:
             self.log(f"[err] GET_TEMP: {e}")
+    
+    def on_get_all(self):
+        if not self.hand:
+            return
+        try:
+            pos = self.hand.get_motor_positions()
+            vel = self.hand.get_motor_speed()
+            curr = self.hand.get_motor_currents()
+            temp = self.hand.get_motor_temperatures()
+            norm_pos = [round(v / 65535, 3) for v in pos]  # Normalize for display
+            self.log(f"[GET_ALL] POS: {norm_pos} | VEL: {list(vel)} | CURR: {list(curr)} | TEMP: {list(temp)}")
+        except Exception as e:
+            self.log(f"[err] GET_ALL: {e}")
 
     # ---- Flashing (esptool) ----
     def on_flash(self):
