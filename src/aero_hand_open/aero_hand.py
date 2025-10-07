@@ -58,6 +58,7 @@ _ACTUATIONS_UPPER_LIMITS = [
 _UINT16_MAX = 65535
 
 _RAD_TO_DEG = 180.0 / 3.141592653589793
+_DEG_TO_RAD = 3.141592653589793 / 180.0
 
 
 class AeroHand:
@@ -109,16 +110,27 @@ class AeroHand:
 
         self._send_data(CTRL_POS, [int(a) for a in actuations])
 
-    def tendon_to_motor_angle(self, tendon_extension: float) -> float:
+    def tendon_to_actuations(self, tendon_extension: float) -> float:
         """
-        Convert tendon extension (mm) to motor angle (degrees).
+        Convert tendon extension (mm) to motor actuations (degrees).
         Args:
             tendon_extension (float): Tendon extension in mm.
         Returns:
-            float: Motor angle in degrees.
+            float: Motor actuations in degrees.
         """
 
         return (tendon_extension / MOTOR_PULLEY_RADIUS) * _RAD_TO_DEG
+    
+    def actuations_to_tendon(self, actuation: float) -> float:
+        """
+        Convert motor actuations (degrees) to tendon extension (mm).
+        Args:
+            actuation (float): Motor actuations in degrees.
+        Returns:
+            float: Tendon extension in mm.
+        """
+
+        return (actuation * MOTOR_PULLEY_RADIUS) * _DEG_TO_RAD
 
     def set_actuations(self, actuations: list):
         """
@@ -130,6 +142,8 @@ class AeroHand:
         derail.
         Args:
             actuations (list): A list of 7 motor actuations in degrees.
+            Motor actuations sequence being:
+            (thumb_cmc_abd, thumb_cmc_flex, thumb_mcp, index_tendon, middle_tendon, ring_tendon, pinky_tendon)
         """
         assert len(actuations) == 7, "Expected 7 Actuations"
 
@@ -240,7 +254,15 @@ class AeroHand:
         data = struct.unpack("<2B7H", resp)
         if data[0] != GET_POS:
             raise ValueError("Invalid response from hand")
-        return data[2:]
+        positions_uint16 = data[2:]
+        ## Convert to degrees
+        positions = [
+            self.actuations_lower_limits[i]
+            + (positions_uint16[i] / _UINT16_MAX)
+            * (self.actuations_upper_limits[i] - self.actuations_lower_limits[i])
+            for i in range(7)
+        ]
+        return positions
 
     def get_motor_currents(self):
         """
