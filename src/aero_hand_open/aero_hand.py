@@ -122,9 +122,9 @@ class AeroHand:
 
     def set_actuations(self, actuations: list):
         """
-        This function is use to set the actuations of the hand directly.
-        Use this with caution as Thumb acutations are not independent i.e. setting one
-        actuations requires changes in other acutations. We use the joint to 
+        This function is used to set the actuations of the hand directly.
+        Use this with caution as Thumb actuations are not independent i.e. setting one
+        actuation requires changes in other actuations. We use the joint to 
         actuations model to handle this. But this function give you direct access.
         If the actuations are not coupled correctly, it will cause Thumb tendons to
         derail.
