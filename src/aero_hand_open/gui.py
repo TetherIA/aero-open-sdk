@@ -60,7 +60,7 @@ class App(tk.Tk):
         self.title("TetherIA – Aero Hand")
         self.geometry("900x620")
         self.minsize(860, 560)
-        self.state('zoomed')
+        self.state("zoomed")
 
         try:
             icon_path = os.path.join(os.path.dirname(__file__), "aero_hand_open.png")
