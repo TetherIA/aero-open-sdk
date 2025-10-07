@@ -62,6 +62,13 @@ class App(tk.Tk):
         self.minsize(860, 560)
         self.state('zoomed')
 
+        try:
+            icon_path = os.path.join(os.path.dirname(__file__), "aero_hand_open.png")
+            icon_img = tk.PhotoImage(file=icon_path)
+            self.iconphoto(True, icon_img)
+        except Exception as e:
+            print(f"Could not set window icon: {e}")
+
         # runtime state
         self.hand: AeroHand | None = None
         self.tx_thread: threading.Thread | None = None
