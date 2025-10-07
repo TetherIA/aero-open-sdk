@@ -48,10 +48,10 @@ SLIDER_LABELS = [
     "thumb_abduction",
     "thumb_flex",
     "thumb_tendon",
-    "index",
-    "middle",
-    "ring",
-    "pinky",
+    "index_finger",
+    "middle_finger",
+    "ring_finger",
+    "pinky_finger",
 ]
 
 class App(tk.Tk):
@@ -156,29 +156,22 @@ class App(tk.Tk):
             row = ttk.Frame(grp)
             row.pack(fill=tk.X, pady=5)
 
-            # Slider name (e.g., "0 - thumb_abduction")
-            ttk.Label(row, text=f"{i} - {name}", width=18).grid(row=0, column=0, padx=(0, 4))
+            # Increase width and add padding to name label
+            ttk.Label(row, text=f"{i} – {name}", width=22).pack(side=tk.LEFT, padx=(0, 8))
 
-            # Constant left label
-            ttk.Label(row, text="0.000", width=8).grid(row=0, column=1, padx=(0, 4))
+            # Use monospace font for min/max labels
+            mono_font = ("Consolas", 10)
+            min_lbl = ttk.Label(row, text="0.000", width=8, font=mono_font)
+            min_lbl.pack(side=tk.LEFT)
 
-            # Slider container (vertical): dynamic label above slider widget
-            slider_container = ttk.Frame(row)
-            slider_container.grid(row=0, column=2, sticky="ew")
-            row.columnconfigure(2, weight=1)
-            dynamic_lbl = ttk.Label(slider_container, text="0.000")
-            dynamic_lbl.pack(anchor="center")
-            var = tk.DoubleVar(value=0.0)  # Use DoubleVar for slider value
+            var = tk.DoubleVar(value=0.0)
             self.slider_vars.append(var)
-            slider = tk.Scale(slider_container, from_=0.0, to=1.0, orient=tk.HORIZONTAL, length=600,
-                              resolution=0.001, variable=var, showvalue=False)
-            slider.pack(fill=tk.X, expand=True)
+            scale = tk.Scale(row, from_=0.0, to=1.0, orient=tk.HORIZONTAL, length=600,
+                             resolution=0.001, variable=var, showvalue=True)
+            scale.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6, 6))
 
-            # Constant right label
-            ttk.Label(row, text="1.000", width=8).grid(row=0, column=3, padx=(4, 0))
-
-            # Update dynamic label when slider value changes
-            var.trace_add("write", lambda *_a, var=var, lbl=dynamic_lbl: lbl.config(text=f"{var.get():.3f}"))
+            max_lbl = ttk.Label(row, text="1.000", width=8, font=mono_font)
+            max_lbl.pack(side=tk.LEFT)
 
         # ---- RX log
         rx = ttk.LabelFrame(self, text="RX Log", padding=10)
