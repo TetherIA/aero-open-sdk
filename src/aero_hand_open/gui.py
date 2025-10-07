@@ -136,10 +136,10 @@ class App(tk.Tk):
         self.btn_get_vel.pack(side=tk.LEFT, padx=6)
         self.btn_get_cur.pack(side=tk.LEFT, padx=6)
         self.btn_get_temp.pack(side=tk.LEFT, padx=6)
-        self.btn_get_all.pack(side=tk.LEFT, padx=(20, 6))
+        self.btn_get_all.pack(side=tk.LEFT, padx=6)
 
         # ---- Sliders (7)
-        grp = ttk.LabelFrame(self, text="Sliders (send CTRL_POS payload 0..65535)", padding=10)
+        grp = ttk.LabelFrame(self, text="Sliders (send CTRL_POS payload)", padding=10)
         grp.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=(6, 10))
 
         for i, name in enumerate(SLIDER_LABELS):
@@ -443,9 +443,7 @@ class App(tk.Tk):
             return
 
         chip = "auto"
-        name = os.path.basename(bin_path).lower()
-        merged = ("merged" in name) or ("with_bootloader" in name) or name.endswith(".merged.bin")
-        offset = "0x0" if merged else "0x10000"
+        offset = "0x10000"
 
         if self.hand:
             self.log("[flash] Closing serial before flashing…")
@@ -454,7 +452,7 @@ class App(tk.Tk):
         def worker():
             cmd = [sys.executable, "-m", "esptool",
                    "--chip", chip, "-p", port, "-b", "921600",
-                   "write-flash"] + ([] if merged else ["-z"]) + [offset, bin_path]
+                   "write-flash", offset, bin_path]
             self.log("> " + " ".join(cmd))
             try:
                 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
