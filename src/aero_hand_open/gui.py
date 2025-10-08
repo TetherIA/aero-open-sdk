@@ -285,9 +285,12 @@ class App(tk.Tk):
         next_t = time.perf_counter()
         while not self.stop_event.is_set():
             if self.hand is not None and not self.control_paused:
-                payload = [int(v.get() * 65535) & 0xFFFF for v in self.slider_vars]  # Convert to 0..65535
+                # ## Unnormalize to joint limits
+                j_ll = self.hand.joint_lower_limits
+                j_ul = self.hand.joint_upper_limits
+                joint_values = [j_ll[i] + (j_ul[i] - j_ll[i]) * self.slider_vars[i] for i in range(7)]
                 try:
-                    self.hand._send_data(CTRL_POS, payload)
+                    self.hand.set_joint_positions(joint_values)
                 except Exception as e:
                     self.log(f"[TX error] {e}")
             # pacing
