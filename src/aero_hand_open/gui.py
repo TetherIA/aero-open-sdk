@@ -288,7 +288,7 @@ class App(tk.Tk):
                 # ## Unnormalize to joint limits
                 j_ll = self.hand.joint_lower_limits
                 j_ul = self.hand.joint_upper_limits
-                joint_values = [j_ll[i] + (j_ul[i] - j_ll[i]) * self.slider_vars[i] for i in range(7)]
+                joint_values = [j_ll[i] + (j_ul[i] - j_ll[i]) * self.slider_vars[i].get() for i in range(7)]
                 try:
                     self.hand.set_joint_positions(joint_values)
                 except Exception as e:
@@ -374,8 +374,8 @@ class App(tk.Tk):
     def on_trim(self):
         if not self.hand:
             return
-        ch = simpledialog.askinteger("Trim Servo", "Servo ID / channel (0..14):",
-                                     minvalue=0, maxvalue=14, parent=self)
+        ch = simpledialog.askinteger("Trim Servo", "Servo ID / channel (0..6):",
+                                     minvalue=0, maxvalue=6, parent=self)
         if ch is None:
             return
         deg = simpledialog.askinteger("Trim Servo", "Degrees (-360..360):",
