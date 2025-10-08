@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import time
 from aero_hand_open.aero_hand import AeroHand
 
 if __name__ == "__main__":
