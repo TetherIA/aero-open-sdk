@@ -404,8 +404,6 @@ class App(tk.Tk):
             vals = self.hand.get_motor_positions()
             norm_vals = [round(v / 65535, 3) for v in vals]  # Normalize for display
             self.log(f"[GET_POS] {norm_vals}")
-            norm_vals = [round(v / 65535, 3) for v in vals]  # Normalize for display
-            self.log(f"[GET_POS] {norm_vals}")
         except Exception as e:
             self.log(f"[err] GET_POS: {e}")
 
