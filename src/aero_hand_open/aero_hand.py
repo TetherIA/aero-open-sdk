@@ -65,11 +65,7 @@ _DEG_TO_RAD = 3.141592653589793 / 180.0
 class AeroHand:
     def __init__(self, port=None, baudrate=921600):
         ## Connect to serial port
-        if port is None:
-            ## Lazy initialization for testing without hardware
-            self.ser = None
-        else:
-            self.ser = serial.Serial(port, baudrate, timeout=0.01, write_timeout=0.01)
+        self.ser = serial.Serial(port, baudrate, timeout=0.01, write_timeout=0.01)
 
         self.joint_names = _JOINT_NAMES
         self.joint_lower_limits = _JOINT_LOWER_LIMITS
