@@ -404,8 +404,6 @@ class App(tk.Tk):
             vals = self.hand.get_motor_positions()
             norm_vals = [round(v / 65535, 3) for v in vals]  # Normalize for display
             self.log(f"[GET_POS] {norm_vals}")
-            norm_vals = [round(v / 65535, 3) for v in vals]  # Normalize for display
-            self.log(f"[GET_POS] {norm_vals}")
         except Exception as e:
             self.log(f"[err] GET_POS: {e}")
 
@@ -513,7 +511,7 @@ class App(tk.Tk):
                     break                     
             else:
                 self.after(0, lambda: self.set_status("Reconnect failed after flashing"))
-                self.after(0, lambda e=e: messagebox.showerror("Flash failed", str(e)))
+                self.after(0, lambda: messagebox.showerror("Flash failed", "Reconnect failed after flashing"))
 
         threading.Thread(target=worker, daemon=True).start()
 
