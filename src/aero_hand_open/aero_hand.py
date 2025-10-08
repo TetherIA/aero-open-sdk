@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+import time 
 import serial
 import struct
-import time 
+import numpy as np
 
 from aero_hand_open.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
 
@@ -79,6 +80,34 @@ class AeroHand:
 
         self.joints_to_actuations_model = JointsToActuationsModel()
 
+    def create_trajectory(self, trajectory: list[tuple]) -> list:
+        rate = 100  # Hz
+        traj = []
+        for i, (keypoint, duration) in enumerate(trajectory):
+            if i == 0: continue
+            num_steps = int(duration * rate)
+            interpolated_vals = np.linspace(trajectory[i-1][0], keypoint, num_steps)
+            traj.extend(interpolated_vals)
+        traj = np.array(traj).tolist()
+        return traj
+
+    def run_trajectory(self, trajectory: list):
+        ## Linerly interpolate between trajectory points
+        interpolated_traj = self.create_trajectory(trajectory)
+        for waypoint in interpolated_traj:
+            self.set_joint_positions(waypoint)
+            time.sleep(0.01)
+        return
+    
+    def convert_seven_joints_to_sixteen(self, positions: list) -> list:
+        return [
+            positions[0], positions[1], positions[2], positions[2],
+            positions[3], positions[3], positions[3],
+            positions[4], positions[4], positions[4],
+            positions[5], positions[5], positions[5],
+            positions[6], positions[6], positions[6],
+        ]
+
     def set_joint_positions(self, positions: list):
         """
         Set the joint positions of the Aero Hand.
@@ -86,8 +115,9 @@ class AeroHand:
         Args:
             positions (list): A list of 16 joint positions. (degrees)
         """
-        assert len(positions) == 16, "Expected 16 Joint Positions"
-
+        assert len(positions) in (16, 7), "Expected 16 or 7 Joint Positions"
+        if len(positions) == 7:
+            positions = self.convert_seven_joints_to_sixteen(positions)
         ## Clamp the positions to the joint limits.
         positions = [
             max(
