@@ -57,7 +57,7 @@ SLIDER_LABELS = [
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("TetherIA – Aero Hand")
+        self.title("TetherIA – Aero Hand Open")
         self.geometry("900x620")
         self.minsize(860, 560)
         if sys.platform.startswith("win"):
@@ -66,7 +66,7 @@ class App(tk.Tk):
             self.attributes("-zoomed", True)
 
         try:
-            icon_path = os.path.join(os.path.dirname(__file__), "assets", "aero_hand_open.png")
+            icon_path = os.path.join(os.path.dirname(__file__), "assets", "logo.png")
             icon_img = tk.PhotoImage(file=icon_path)
             self.iconphoto(True, icon_img)
         except Exception as e:
