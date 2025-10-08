@@ -79,7 +79,7 @@ class App(tk.Tk):
         self.stop_event = threading.Event()
         self.control_paused = False  # pause streaming during blocking ops
         self.tx_rate_hz = 50.0       # streaming rate for CTRL_POS
-        self.slider_vars: list[tk.DoubleVar] = []  # Change to DoubleVar
+        self.slider_vars: list[tk.DoubleVar] = []  # Use DoubleVar for normalized 0.0-1.0 range
         self.port_var = tk.StringVar()
         self.baud_var = tk.IntVar(value=921600)
 
