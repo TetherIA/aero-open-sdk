@@ -5,10 +5,10 @@
 
 <div align="center">
 
-[![Python Version](https://img.shields.io/pypi/pyversions/aero-hand-sdk)](https://www.python.org/downloads/)
-[![PyPI Version](https://img.shields.io/pypi/v/aero-hand-sdk)](https://pypi.org/project/aero-hand-sdk/)
+[![Python Version](https://img.shields.io/pypi/pyversions/aero-open-sdk)](https://www.python.org/downloads/)
+[![PyPI Version](https://img.shields.io/pypi/v/aero-open-sdk)](https://pypi.org/project/aero-hand-sdk/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/pypi/status/aero-hand-sdk)](https://pypi.org/project/aero-hand-sdk/)
+[![Status](https://img.shields.io/pypi/status/aero-open-sdk)](https://pypi.org/project/aero-hand-sdk/)
 [![Build](https://img.shields.io/github/actions/workflow/status/TetherIA/aero-open-sdk/test.yml?branch=main)](https://github.com/TetherIA/aero-open-sdk/actions)
 [![TetherIA](https://img.shields.io/badge/Developed%20by-TetherIA.ai-0A66C2)](https://tetheria.ai)
 
