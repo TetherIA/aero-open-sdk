@@ -26,17 +26,17 @@
 
 ---
 
-## Installation
+## ⚙️ Installation
 
 The SDK is currently tested for Python 3.10 and above.
 
-### Install via pip
+### 📦 Install via pip
 
 ```bash
 pip install aero-hand-sdk
 ```
 
-### Install from source (editable mode)
+### 🧩 Install from source (editable mode)
 
 1. Clone the repository to your local machine:
    ```bash
@@ -55,7 +55,7 @@ pip install aero-hand-sdk
 
 ---
 
-## One-Time Setup
+## 🖥️ One-Time Setup
 
 When setting up your hand for the first time, our setup GUI helps you configure motor IDs and test motor connections.
 
@@ -69,19 +69,19 @@ This provides an interactive interface to configure your hand.
 
 ---
 
-## Examples
+## 💡 Examples
 
 To integrate the SDK into your own code, refer to the `examples` folder for sample files demonstrating basic usage.
 
 ---
 
-## Troubleshooting
+## 🧰 Troubleshooting
 
 For common issues and solutions, please refer to our troubleshooting guide (coming soon).
 
 ---
 
-## Support
+## 💬 Support
 
 If you encounter issues or have feature requests:
 - Open a [GitHub Issue](https://github.com/TetherIA/aero-open-sdk/issues)
@@ -89,7 +89,7 @@ If you encounter issues or have feature requests:
 
 ---
 
-## Contribution
+## 🤝 Contribution
 
 We welcome community contributions!
 
@@ -110,7 +110,7 @@ If you'd like to improve the SDK, fix bugs, or add new features:
 
 ---
 
-## License
+## ⚖️ License
 
 This project is licensed under the **Apache License 2.0**.
 
