@@ -69,6 +69,10 @@ This provides an interactive interface to configure your hand.
 
 ---
 
+## Finding Port ID for your hand
+
+TODO: @mohitydv09
+
 ## 💡 Examples
 
 To integrate the SDK into your own code, refer to the `examples` folder for sample files demonstrating basic usage.
