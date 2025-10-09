@@ -405,8 +405,13 @@ class App(tk.Tk):
             return
         try:
             vals = self.hand.get_motor_positions()
-            norm_vals = [round(v / 65535, 3) for v in vals]  # Normalize for display
-            self.log(f"[GET_POS] {norm_vals}")
+            j_ll = self.hand.actuations_lower_limits
+            j_ul = self.hand.actuations_upper_limits
+            # Convert to normalized 0.0-1.0 range for display
+            norm_vals = [(vals[i] - j_ll[i]) / (j_ul[i] - j_ll[i]) for i in range(len(vals))]
+            ## Format to 3 decimal places
+            norm_vals_fmt = [round(v, 3) for v in norm_vals]
+            self.log(f"[GET_POS] {norm_vals_fmt}")
         except Exception as e:
             self.log(f"[err] GET_POS: {e}")
 
