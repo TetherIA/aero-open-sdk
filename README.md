@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="Aero Hand Open by TetherIA" src="src/aero_hand_open/assets/logo.png" width="10%">
+  <img alt="Aero Hand Open by TetherIA" src="src/aero_hand_open/assets/logo.png" width="30%">
   <br/><br/>
 </p>
 
@@ -19,7 +19,7 @@
 </h2>
 
 <div align="center">
-  <img src="src/aero_hand_open/assets/logo.png" alt="Aero Hand Demo" title="Aero Hand in action" width="10%"/>
+  <img src="src/aero_hand_open/assets/banner.jpg" alt="Aero Hand Demo" title="Aero Hand in action" width="70%"/>
   <p><strong>Aero Hand Open</strong> is a 7-DoF tendon-driven robotic hand for dexterous manipulation and research.</p>
   <p>The SDK enables full control via Python. Perform homing, calibration, and precise motion control with ease.</p>
 </div>
@@ -113,3 +113,10 @@ If you'd like to improve the SDK, fix bugs, or add new features:
 ## License
 
 This project is licensed under the **Apache License 2.0**.
+
+
+<div align="center">
+If you find this project useful, please give it a star! ⭐
+
+Built with ❤️ by TetherIA.ai
+</div>
