@@ -8,16 +8,18 @@ resolution-markers = [
 
 [[package]]
 name = "aero-hand-open"
-version = "0.1.8"
+version = "0.1.9"
 source = { editable = "." }
 dependencies = [
     { name = "esptool" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "esptool", specifier = ">=5.1.0" },
-    { name = "pyserial", specifier = ">=3.5" },
+    { name = "esptool", specifier = ">=4.7.0" },
+    { name = "numpy", specifier = ">=1.24.0" },
 ]
 
 [[package]]
