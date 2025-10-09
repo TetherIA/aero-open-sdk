@@ -25,7 +25,7 @@ from tkinter import ttk, messagebox, simpledialog, filedialog
 
 from serial.tools import list_ports
 
-from aero_hand_open.aero_hand import AeroHand
+from aero_open_sdk.aero_hand import AeroHand
 
 
 # ---- operation codes ------------

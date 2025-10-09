@@ -4,7 +4,7 @@ import serial
 import struct
 import numpy as np
 
-from aero_hand_open.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
+from aero_open_sdk.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
 
 ## Setup Modes
 HOMING_MODE = 0x01
