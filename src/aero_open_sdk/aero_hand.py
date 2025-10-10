@@ -45,6 +45,16 @@ _JOINT_NAMES = [
 _JOINT_LOWER_LIMITS = [0.0] * 16
 _JOINT_UPPER_LIMITS = [100.0, 55.0, 90.0, 90.0] + [90.0] * 12
 
+_ACTUATIONS_NAMES = [
+    "thumb_cmc_abd_act",
+    "thumb_cmc_flex_act",
+    "thumb_tendon",
+    "index_tendon",
+    "middle_tendon",
+    "ring_tendon",
+    "pinky_tendon",
+]
+
 _ACTUATIONS_LOWER_LIMITS = [0.0, 0.0, -27.7778, 0.0, 0.0, 0.0, 0.0]
 _ACTUATIONS_UPPER_LIMITS = [
     100.0,
@@ -71,6 +81,7 @@ class AeroHand:
         self.joint_lower_limits = _JOINT_LOWER_LIMITS
         self.joint_upper_limits = _JOINT_UPPER_LIMITS
 
+        self.actuations_names = _ACTUATIONS_NAMES
         self.actuations_lower_limits = _ACTUATIONS_LOWER_LIMITS
         self.actuations_upper_limits = _ACTUATIONS_UPPER_LIMITS
 
@@ -138,20 +149,20 @@ class AeroHand:
 
     def tendon_to_actuations(self, tendon_extension: float) -> float:
         """
-        Convert tendon extension (mm) to motor actuations (degrees).
+        Convert tendon extension (mm) to actuator actuations (degrees).
         Args:
             tendon_extension (float): Tendon extension in mm.
         Returns:
-            float: Motor actuations in degrees.
+            float: actuator actuations in degrees.
         """
 
         return (tendon_extension / MOTOR_PULLEY_RADIUS) * _RAD_TO_DEG
     
     def actuations_to_tendon(self, actuation: float) -> float:
         """
-        Convert motor actuations (degrees) to tendon extension (mm).
+        Convert actuator actuations (degrees) to tendon extension (mm).
         Args:
-            actuation (float): Motor actuations in degrees.
+            actuation (float): actuator actuations in degrees.
         Returns:
             float: Tendon extension in mm.
         """
@@ -167,9 +178,9 @@ class AeroHand:
         If the actuations are not coupled correctly, it will cause Thumb tendons to
         derail.
         Args:
-            actuations (list): A list of 7 motor actuations in degrees.
-            Motor actuations sequence being:
-            (thumb_cmc_abd, thumb_cmc_flex, thumb_mcp, index_tendon, middle_tendon, ring_tendon, pinky_tendon)
+            actuations (list): A list of 7 actuations in degrees
+            actuator actuations sequence being:
+            (thumb_cmc_abd_act, thumb_cmc_flex_act, thumb_tendon, index_tendon, middle_tendon, ring_tendon, pinky_tendon)
         """
         assert len(actuations) == 7, "Expected 7 Actuations"
 
@@ -203,7 +214,7 @@ class AeroHand:
         raise TimeoutError(f"ACK (opcode 0x{opcode:02X}) not received within {timeout_s}s")
     
     def set_id(self, id: int, current_limit: int):
-        """This fn is used by the GUI to set Motor IDs and current limits for the first time."""
+        """This fn is used by the GUI to set actuator IDs and current limits for the first time."""
         if not (0 <= id <= 253):
             raise ValueError("new_id must be 0..253")
         if not (0 <= current_limit <= 1023):
@@ -223,7 +234,7 @@ class AeroHand:
         return {"Old_id": old_id, "New_id": new_id, "Current_limit": cur_limit}
     
     def trim_servo(self, channel: int, degrees: int):
-        """This fn is used by the GUI to fine tune the motor positions."""
+        """This fn is used by the GUI to fine tune the actuator positions."""
         if not (0 <= channel <= 14):
             raise ValueError("channel must be 0..14")
         if not (-360 <= degrees <= 360):
@@ -268,11 +279,11 @@ class AeroHand:
     def get_joint_positions(self):
         raise NotImplementedError("This method is not yet implemented")
 
-    def get_motor_positions(self):
+    def get_actuations(self):
         """
-        Get the motor positions from the hand.
+        Get the actuation values from the hand.
         Returns:
-            list: A list of 7 motor positions. (degrees)
+            list: A list of 7 actuations. (degrees)
         """
         self._send_data(GET_POS)
         ## Read the response
@@ -290,11 +301,11 @@ class AeroHand:
         ]
         return positions
 
-    def get_motor_currents(self):
+    def get_actuator_currents(self):
         """
-        Get the motor currents from the hand.
+        Get the actuator currents from the hand.
         Returns:
-            list: A list of 7 motor currents. (mA)
+            list: A list of 7 actuator currents. (mA)
         """
         self._send_data(GET_CURR)
         ## Read the response
@@ -304,11 +315,11 @@ class AeroHand:
             raise ValueError("Invalid response from hand")
         return data[2:]
 
-    def get_motor_temperatures(self):
+    def get_actuator_temperatures(self):
         """
-        Get the motor temperatures from the hand.
+        Get the actuator temperatures from the hand.
         Returns:
-            list: A list of 7 motor temperatures. (Degree Celsius)
+            list: A list of 7 actuator temperatures. (Degree Celsius)
         """
         self._send_data(GET_TEMP)
         ## Read the response
@@ -318,11 +329,11 @@ class AeroHand:
             raise ValueError("Invalid response from hand")
         return data[2:]
 
-    def get_motor_speed(self):
+    def get_actuator_speeds(self):
         """
-        Get the motor speeds from the hand.
+        Get the actuator speeds from the hand.
         Returns:
-            list: A list of 7 motor speeds. (RPM)
+            list: A list of 7 actuator speeds. (RPM)
         """
         self._send_data(GET_VEL)
         ## Read the response
