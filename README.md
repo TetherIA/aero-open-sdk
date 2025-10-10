@@ -69,9 +69,66 @@ This provides an interactive interface to configure your hand.
 
 ---
 
-## Finding Port ID for your hand
+## 🔌 Serial Port Setup
 
-TODO: @mohitydv09
+Aero Hand connects to the host PC via a serial (USB) interface.
+To operate the SDK, you must specify the correct serial port for your device.
+
+### 🐧 Linux
+
+Most Linux systems assign the device path as `/dev/ttyACM0` or `/dev/ttyUSB0`. You can list connected serial devices with:
+
+```bash
+ls /dev/ttyACM* /dev/ttyUSB*
+```
+
+**💡 Persistent Device Path (Recommended)**
+
+Device names like `/dev/ttyUSB0` can change each time you reconnect.
+
+To get a persistent name, use the by-id symlink instead:
+
+```bash
+ls -l /dev/serial/by-id/
+```
+
+This will show you a list of connected serial devices with more descriptive names. Look for the one that corresponds to your Aero Hand. Which will look something like:
+```bash
+usb-Espressif_USB_JTAG_serial_debug_unit_D8:3B:DA:45:C8:1C-if00
+```
+Then initialize your hand using that path:
+```python
+from aero_open_sdk.aero_hand import AeroHand
+
+aero_hand = AeroHand(
+  port="/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_D8:3B:DA:45:C8:1C-if00"
+)
+```
+✅ This ensures your connection always points to the correct device, even if you unplug and replug the hand or change the USB port.
+
+### 🪟 Windows
+On Windows, the device will appear as a COM port like `COM3` or `COM4`. You can find the correct COM port by checking the Device Manager under "Ports (COM & LPT)".
+
+You can then Initialize your hand with the detected COM port:
+```python
+from aero_open_sdk.aero_hand import AeroHand
+aero_hand = AeroHand(port="COM3")
+```
+**💡 Making the COM Port Persistent**
+
+Windows does not have a /by-id/ system like Linux, so the COM number can change if you plug the device into a different USB port.
+
+To make it permanent, you can assign a fixed COM number:
+1. Plug in the Aero Hand and open Device Manager.
+2. Find it under Ports (COM & LPT).
+3. Right-click → Properties → Port Settings → Advanced.
+4. In COM Port Number, select an unused port (e.g., COM5).
+5. Click OK to save.
+
+You can now always use this COM port when initializing the SDK.
+
+---
+
 
 ## 💡 Examples
 
