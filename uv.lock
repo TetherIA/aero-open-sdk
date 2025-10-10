@@ -7,8 +7,8 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "aero-hand-open"
-version = "0.1.9"
+name = "aero-open-sdk"
+version = "0.1.11"
 source = { editable = "." }
 dependencies = [
     { name = "esptool" },
@@ -18,7 +18,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "esptool", specifier = ">=4.7.0" },
+    { name = "esptool", specifier = ">=5.0.0" },
     { name = "numpy", specifier = ">=1.24.0" },
 ]
 
