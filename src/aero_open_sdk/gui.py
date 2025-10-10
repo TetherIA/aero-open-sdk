@@ -404,7 +404,7 @@ class App(tk.Tk):
         if not self.hand:
             return
         try:
-            vals = self.hand.get_motor_positions()
+            vals = self.hand.get_actuations()
             j_ll = self.hand.actuations_lower_limits
             j_ul = self.hand.actuations_upper_limits
             # Convert to normalized 0.0-1.0 range for display
@@ -419,7 +419,7 @@ class App(tk.Tk):
         if not self.hand:
             return
         try:
-            vals = self.hand.get_motor_speed()
+            vals = self.hand.get_actuator_speeds()
             self.log(f"[GET_VEL] {list(vals)}")
         except Exception as e:
             self.log(f"[err] GET_VEL: {e}")
@@ -428,7 +428,7 @@ class App(tk.Tk):
         if not self.hand:
             return
         try:
-            vals = self.hand.get_motor_currents()
+            vals = self.hand.get_actuator_currents()
             self.log(f"[GET_CURR] {list(vals)}")
         except Exception as e:
             self.log(f"[err] GET_CURR: {e}")
@@ -437,7 +437,7 @@ class App(tk.Tk):
         if not self.hand:
             return
         try:
-            vals = self.hand.get_motor_temperatures()
+            vals = self.hand.get_actuator_temperatures()
             self.log(f"[GET_TEMP] {list(vals)}")
         except Exception as e:
             self.log(f"[err] GET_TEMP: {e}")
@@ -446,10 +446,10 @@ class App(tk.Tk):
         if not self.hand:
             return
         try:
-            pos = self.hand.get_motor_positions()
-            vel = self.hand.get_motor_speed()
-            curr = self.hand.get_motor_currents()
-            temp = self.hand.get_motor_temperatures()
+            pos = self.hand.get_actuations()
+            vel = self.hand.get_actuator_speeds()
+            curr = self.hand.get_actuator_currents()
+            temp = self.hand.get_actuator_temperatures()
             norm_pos = [round(v / 65535, 3) for v in pos]  # Normalize for display
             self.log(f"[GET_ALL] POS: {norm_pos} | VEL: {list(vel)} | CURR: {list(curr)} | TEMP: {list(temp)}")
         except Exception as e:
