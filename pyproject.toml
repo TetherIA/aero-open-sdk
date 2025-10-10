@@ -1,6 +1,6 @@
 [project]
 name = "aero-open-sdk"
-version = "0.1.9"
+version = "0.1.11"
 description = "This package provides an interface to control the Aero Hand Open robotic hand."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -13,7 +13,7 @@ maintainers = [
 license = { text = "Apache License 2.0" }
 
 dependencies = [
-    "esptool>=4.7.0",
+    "esptool>=5.0.0",
     "numpy>=1.24.0",
 ]
 
