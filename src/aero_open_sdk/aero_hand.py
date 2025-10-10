@@ -48,11 +48,11 @@ _JOINT_UPPER_LIMITS = [100.0, 55.0, 90.0, 90.0] + [90.0] * 12
 _ACTUATIONS_NAMES = [
     "thumb_cmc_abd_act",
     "thumb_cmc_flex_act",
-    "thumb_tendon",
-    "index_tendon",
-    "middle_tendon",
-    "ring_tendon",
-    "pinky_tendon",
+    "thumb_tendon_act",
+    "index_tendon_act",
+    "middle_tendon_act",
+    "ring_tendon_act",
+    "pinky_tendon_act",
 ]
 
 _ACTUATIONS_LOWER_LIMITS = [0.0, 0.0, -27.7778, 0.0, 0.0, 0.0, 0.0]
@@ -235,8 +235,8 @@ class AeroHand:
     
     def trim_servo(self, channel: int, degrees: int):
         """This fn is used by the GUI to fine tune the actuator positions."""
-        if not (0 <= channel <= 14):
-            raise ValueError("channel must be 0..14")
+        if not (0 <= channel <= 6):
+            raise ValueError("channel must be 0..6")
         if not (-360 <= degrees <= 360):
             raise ValueError("degrees out of range")
         
