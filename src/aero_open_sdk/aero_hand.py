@@ -34,6 +34,12 @@ class AeroHand:
         ## Connect to serial port
         self.ser = serial.Serial(port, baudrate, timeout=0.01, write_timeout=0.01)
 
+        ## Clean Buffers before starting
+        try: self.ser.reset_input_buffer()
+        except Exception: pass
+        try: self.ser.reset_output_buffer()
+        except Exception: pass
+
         aero_hand_constants = AeroHandConstants()
 
         self.joint_names = aero_hand_constants.joint_names
@@ -244,12 +250,22 @@ class AeroHand:
         Returns:
             list: A list of 7 actuations. (degrees)
         """
+        ## Clear input buffer to avoid stale data
+        try: self.ser.reset_input_buffer()
+        except Exception: pass
+
         self._send_data(GET_POS)
+
         ## Read the response
         resp = self.ser.read(2 + 7 * 2)  # 2
+        if len(resp) != 16:
+            print(f"Timeout while reading actuations. Got {len(resp)} bytes.")
+            return None
         data = struct.unpack("<2B7H", resp)
         if data[0] != GET_POS:
-            raise ValueError("Invalid response from hand")
+            print(f"Invalid response from hand in get_actuations. Expected {GET_POS}, got {data[0]}")
+            self.ser.reset_input_buffer()
+            return None
         positions_uint16 = data[2:]
         ## Convert to degrees
         positions = [
@@ -266,12 +282,22 @@ class AeroHand:
         Returns:
             list: A list of 7 actuator currents. (mA)
         """
+        ## Clear input buffer to avoid stale data
+        try: self.ser.reset_input_buffer()
+        except Exception: pass
+
         self._send_data(GET_CURR)
-        ## Read the response
+        
+        ## Read the response, signed values
         resp = self.ser.read(2 + 7 * 2)  # 2
+        if len(resp) != 16:
+            print(f"Timeout while reading currents. Got {len(resp)} bytes.")
+            return None
         data = struct.unpack("<2B7h", resp)
         if data[0] != GET_CURR:
-            raise ValueError("Invalid response from hand")
+            print(f"Invalid response from hand in get_actuator_currents. Expected {GET_CURR}, got {data[0]}")
+            self.ser.reset_input_buffer()
+            return None
         return data[2:]
 
     def get_actuator_temperatures(self):
@@ -280,12 +306,21 @@ class AeroHand:
         Returns:
             list: A list of 7 actuator temperatures. (Degree Celsius)
         """
+        try: self.ser.reset_input_buffer()
+        except Exception: pass
+
         self._send_data(GET_TEMP)
-        ## Read the response
+        
+        ## Read the response, unsigned values
         resp = self.ser.read(2 + 7 * 2)  # 2
+        if len(resp) != 16:
+            print(f"Timeout while reading temperatures. Got {len(resp)} bytes.")
+            return None
         data = struct.unpack("<2B7H", resp)
         if data[0] != GET_TEMP:
-            raise ValueError("Invalid response from hand")
+            print(f"Invalid response from hand in get_actuator_temperatures. Expected {GET_TEMP}, got {data[0]}")
+            self.ser.reset_input_buffer()
+            return None
         return data[2:]
 
     def get_actuator_speeds(self):
@@ -294,12 +329,21 @@ class AeroHand:
         Returns:
             list: A list of 7 actuator speeds. (RPM)
         """
+        try: self.ser.reset_input_buffer()
+        except Exception: pass
+
         self._send_data(GET_VEL)
-        ## Read the response
+        
+        ## Read the response, signed values
         resp = self.ser.read(2 + 7 * 2)  # 2
+        if len(resp) != 16:
+            print(f"Timeout while reading speeds. Got {len(resp)} bytes.")
+            return None
         data = struct.unpack("<2B7h", resp)
         if data[0] != GET_VEL:
-            raise ValueError("Invalid response from hand")
+            print(f"Invalid response from hand in get_actuator_speeds. Expected {GET_VEL}, got {data[0]}")
+            self.ser.reset_input_buffer()
+            return None
         return data[2:]
 
     def close(self):
