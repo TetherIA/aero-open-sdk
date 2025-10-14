@@ -405,8 +405,8 @@ class App(tk.Tk):
             return
         try:
             vals = self.hand.get_actuations()
-            j_ll = self.hand.actuations_lower_limits
-            j_ul = self.hand.actuations_upper_limits
+            j_ll = self.hand.actuation_lower_limits
+            j_ul = self.hand.actuation_upper_limits
             # Convert to normalized 0.0-1.0 range for display
             norm_vals = [(vals[i] - j_ll[i]) / (j_ul[i] - j_ll[i]) for i in range(len(vals))]
             ## Format to 3 decimal places
