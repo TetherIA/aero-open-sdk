@@ -2,8 +2,11 @@
 import time 
 import serial
 import struct
+from dataclasses import dataclass
+
 import numpy as np
 
+from aero_open_sdk.aero_hand_constants import AeroHandConstants
 from aero_open_sdk.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
 
 ## Setup Modes
@@ -21,69 +24,25 @@ GET_VEL = 0x23
 GET_CURR = 0x24
 GET_TEMP = 0x25
 
-
-## Robot Constants
-_JOINT_NAMES = [
-    "thumb_cmc_abd",
-    "thumb_cmc_flex",
-    "thumb_mcp",
-    "thumb_ip",
-    "index_mcp_flex",
-    "index_pip",
-    "index_dip",
-    "middle_mcp_flex",
-    "middle_pip",
-    "middle_dip",
-    "ring_mcp_flex",
-    "ring_pip",
-    "ring_dip",
-    "pinky_mcp_flex",
-    "pinky_pip",
-    "pinky_dip",
-]
-
-_JOINT_LOWER_LIMITS = [0.0] * 16
-_JOINT_UPPER_LIMITS = [100.0, 55.0, 90.0, 90.0] + [90.0] * 12
-
-_ACTUATIONS_NAMES = [
-    "thumb_cmc_abd_act",
-    "thumb_cmc_flex_act",
-    "thumb_tendon_act",
-    "index_tendon_act",
-    "middle_tendon_act",
-    "ring_tendon_act",
-    "pinky_tendon_act",
-]
-
-_ACTUATIONS_LOWER_LIMITS = [0.0, 0.0, -27.7778, 0.0, 0.0, 0.0, 0.0]
-_ACTUATIONS_UPPER_LIMITS = [
-    100.0,
-    131.8906,
-    274.9275,
-    288.1603,
-    288.1603,
-    288.1603,
-    288.1603,
-]
-
 _UINT16_MAX = 65535
 
 _RAD_TO_DEG = 180.0 / 3.141592653589793
 _DEG_TO_RAD = 3.141592653589793 / 180.0
-
 
 class AeroHand:
     def __init__(self, port=None, baudrate=921600):
         ## Connect to serial port
         self.ser = serial.Serial(port, baudrate, timeout=0.01, write_timeout=0.01)
 
-        self.joint_names = _JOINT_NAMES
-        self.joint_lower_limits = _JOINT_LOWER_LIMITS
-        self.joint_upper_limits = _JOINT_UPPER_LIMITS
+        aero_hand_constants = AeroHandConstants()
 
-        self.actuations_names = _ACTUATIONS_NAMES
-        self.actuations_lower_limits = _ACTUATIONS_LOWER_LIMITS
-        self.actuations_upper_limits = _ACTUATIONS_UPPER_LIMITS
+        self.joint_names = aero_hand_constants.joint_names
+        self.joint_lower_limits = aero_hand_constants.joint_lower_limits
+        self.joint_upper_limits = aero_hand_constants.joint_upper_limits
+
+        self.actuation_names = aero_hand_constants.actuation_names
+        self.actuation_lower_limits = aero_hand_constants.actuation_lower_limits
+        self.actuation_upper_limits = aero_hand_constants.actuation_upper_limits
 
         self.joints_to_actuations_model = JointsToActuationsModel()
 
@@ -139,8 +98,8 @@ class AeroHand:
 
         ## Normalize actuation to uint16 range. (0-65535)
         actuations = [
-            (actuations[i] - self.actuations_lower_limits[i])
-            / (self.actuations_upper_limits[i] - self.actuations_lower_limits[i])
+            (actuations[i] - self.actuation_lower_limits[i])
+            / (self.actuation_upper_limits[i] - self.actuation_lower_limits[i])
             * _UINT16_MAX
             for i in range(7)
         ]
@@ -187,16 +146,16 @@ class AeroHand:
         ## Clamp the actuations to the limits.
         actuations = [
             max(
-                self.actuations_lower_limits[i],
-                min(actuations[i], self.actuations_upper_limits[i]),
+                self.actuation_lower_limits[i],
+                min(actuations[i], self.actuation_upper_limits[i]),
             )
             for i in range(7)
         ]
 
         ## Normalize actuation to uint16 range. (0-65535)
         actuations = [
-            (actuations[i] - self.actuations_lower_limits[i])
-            / (self.actuations_upper_limits[i] - self.actuations_lower_limits[i])
+            (actuations[i] - self.actuation_lower_limits[i])
+            / (self.actuation_upper_limits[i] - self.actuation_lower_limits[i])
             * _UINT16_MAX
             for i in range(7)
         ]
@@ -294,9 +253,9 @@ class AeroHand:
         positions_uint16 = data[2:]
         ## Convert to degrees
         positions = [
-            self.actuations_lower_limits[i]
+            self.actuation_lower_limits[i]
             + (positions_uint16[i] / _UINT16_MAX)
-            * (self.actuations_upper_limits[i] - self.actuations_lower_limits[i])
+            * (self.actuation_upper_limits[i] - self.actuation_lower_limits[i])
             for i in range(7)
         ]
         return positions
