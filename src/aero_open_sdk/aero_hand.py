@@ -34,10 +34,8 @@ class AeroHand:
         self.ser = serial.Serial(port, baudrate, timeout=0.01, write_timeout=0.01)
 
         ## Clean Buffers before starting
-        try: self.ser.reset_input_buffer()
-        except Exception: pass
-        try: self.ser.reset_output_buffer()
-        except Exception: pass
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
 
         aero_hand_constants = AeroHandConstants()
 
