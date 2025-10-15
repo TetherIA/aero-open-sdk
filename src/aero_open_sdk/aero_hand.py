@@ -2,7 +2,6 @@
 import time 
 import serial
 import struct
-from dataclasses import dataclass
 
 import numpy as np
 
