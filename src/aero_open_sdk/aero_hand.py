@@ -250,8 +250,7 @@ class AeroHand:
             list: A list of 7 actuations. (degrees)
         """
         ## Clear input buffer to avoid stale data
-        try: self.ser.reset_input_buffer()
-        except Exception: pass
+        self.ser.reset_input_buffer()
 
         self._send_data(GET_POS)
 
@@ -282,8 +281,7 @@ class AeroHand:
             list: A list of 7 actuator currents. (mA)
         """
         ## Clear input buffer to avoid stale data
-        try: self.ser.reset_input_buffer()
-        except Exception: pass
+        self.ser.reset_input_buffer()
 
         self._send_data(GET_CURR)
         
@@ -305,8 +303,7 @@ class AeroHand:
         Returns:
             list: A list of 7 actuator temperatures. (Degree Celsius)
         """
-        try: self.ser.reset_input_buffer()
-        except Exception: pass
+        self.ser.reset_input_buffer()
 
         self._send_data(GET_TEMP)
         
@@ -328,8 +325,7 @@ class AeroHand:
         Returns:
             list: A list of 7 actuator speeds. (RPM)
         """
-        try: self.ser.reset_input_buffer()
-        except Exception: pass
+        self.ser.reset_input_buffer()
 
         self._send_data(GET_VEL)
         
