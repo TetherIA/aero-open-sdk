@@ -134,7 +134,7 @@ class App(tk.Tk):
         self.btn_flash.pack(side=tk.LEFT, padx=(0, 10))
 
         # Zero All Button
-        self.btn_zero = ttk.Button(cmd, text="Set to Extend", command=self.on_zero_all, state=tk.DISABLED)
+        self.btn_zero = ttk.Button(cmd, text="Set to Open Position", command=self.on_zero_all, state=tk.DISABLED)
         self.btn_zero.pack(side=tk.LEFT, padx=(0, 10))
 
         #Set Speed Button
@@ -158,29 +158,41 @@ class App(tk.Tk):
         self.btn_get_all.pack(side=tk.LEFT, padx=6)
 
         # ---- Sliders (7)
-        grp = ttk.LabelFrame(self, text="Sliders (send CTRL_POS payload)", padding=10)
-        grp.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=(6, 10))
+        self.grp = ttk.LabelFrame(self, text="Sliders (send CTRL_POS payload)", padding=10)
+        self.grp.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=(6, 10))
 
+        self.slider_vars = []
+        self.slider_widgets = []
+        mono_font = ("Consolas", 10)
         for i, name in enumerate(SLIDER_LABELS):
-            row = ttk.Frame(grp)
+            row = ttk.Frame(self.grp)
             row.pack(fill=tk.X, pady=5)
-
-            # Increase width and add padding to name label
             ttk.Label(row, text=f"{i} – {name}", width=22).pack(side=tk.LEFT, padx=(0, 8))
-
-            # Use monospace font for min/max labels
-            mono_font = ("Consolas", 10)
             min_lbl = ttk.Label(row, text="0.000", width=8, font=mono_font)
             min_lbl.pack(side=tk.LEFT)
-
             var = tk.DoubleVar(value=0.0)
             self.slider_vars.append(var)
             scale = tk.Scale(row, from_=0.0, to=1.0, orient=tk.HORIZONTAL, length=600,
                              resolution=0.001, variable=var, showvalue=True)
             scale.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6, 6))
-
+            self.slider_widgets.append(scale)
             max_lbl = ttk.Label(row, text="1.000", width=8, font=mono_font)
             max_lbl.pack(side=tk.LEFT)
+
+        # Torque slider (hidden by default)
+        self.torque_frame = ttk.Frame(self)
+        self.torque_slider_var = tk.DoubleVar(value=0.0)
+        self.torque_slider = tk.Scale(self.torque_frame, from_=0.0, to=1.0, orient=tk.HORIZONTAL, length=600,
+                                      resolution=0.001, variable=self.torque_slider_var, showvalue=True,
+                                      label="Torque (0.000 - 1.000)", command=self._on_torque_slider)
+        self.torque_slider.pack(side=tk.LEFT, padx=20, pady=10)
+        self.btn_back_joint = ttk.Button(self.torque_frame, text="Back to Position Control", command=self.disable_torque_control)
+        self.btn_back_joint.pack(side=tk.LEFT, padx=20, pady=10)
+        self.torque_frame.pack_forget()
+
+        # Torque Control Button below sliders
+        self.btn_torque_control = ttk.Button(self, text="Torque Control", command=self.on_torque_control, state=tk.NORMAL)
+        self.btn_torque_control.pack(side=tk.TOP, pady=(0, 10))
 
         # ---- RX log
         rx = ttk.LabelFrame(self, text="RX Log", padding=10)
@@ -220,6 +232,33 @@ class App(tk.Tk):
                 self.port_var.set("COM12")
             else:
                 self.port_var.set("/dev/ttyUSB0")
+
+    def on_torque_control(self):
+        # Stop CTRL_POS streaming and disable joint sliders
+        self.set_status("Torque control mode: stopped CTRL_POS streaming")
+        for scale in self.slider_widgets:
+            scale.configure(state=tk.DISABLED)
+        self.grp.configure(text="Sliders (CTRL_POS disabled)")
+        # Show torque slider
+        self.torque_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=(6, 10))
+        self.torque_slider.configure(state=tk.NORMAL)
+
+    def _on_torque_slider(self, val):
+        t_val = int(float(val) * 1000)
+        try:
+            ack = self.hand.ctrl_torque(0, t_val)  # channel 0 for demo, adjust as needed
+            self.log(f"[TX] CTRL_TOR sent: {t_val} | [ACK] {ack}")
+            self.set_status(f"Torque set to {t_val}")
+        except Exception as e:
+            self.log(f"[err] Torque set failed: {e}")
+            self.set_status("Torque set failed")
+
+    def disable_torque_control(self):
+        # Hide torque slider and re-enable joint sliders
+        self.torque_frame.pack_forget()
+        for scale in self.slider_widgets:
+            scale.configure(state=tk.NORMAL)
+        self.grp.configure(text="Sliders (send CTRL_POS payload)")
 
     # ------------- connect/disconnect -------------
     def on_connect(self):

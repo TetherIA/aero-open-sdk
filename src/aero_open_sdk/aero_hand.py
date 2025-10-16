@@ -15,6 +15,7 @@ TRIM_MODE = 0x03
 
 ## Command Modes
 CTRL_POS = 0x11
+CTRL_TOR = 0x12
 SET_SPE = 0x13
 SET_TOR = 0x14
 
@@ -252,6 +253,17 @@ class AeroHand:
         payload = self._wait_for_ack(TRIM_MODE, 1.0)
         id, extend = struct.unpack_from("<HH", payload, 0)
         return {"Servo ID": id, "Extend Count": extend}
+    
+    def ctrl_torque(self, torque: int):
+        """
+        Set the same torque value for all 7 servos using the CTRL_TOR command.
+        Args:
+            torque (int): Torque value (0..1000)
+        """
+        if not (0 <= torque <= 1000):
+            raise ValueError("torque must be in range 0..1000")
+        payload = [torque & 0xFFFF] * 7
+        self._send_data(CTRL_TOR, payload)
 
     def _send_data(self, header: int, payload: list[int] = [0] * 7):
         assert self.ser is not None, "Serial port is not initialized"
