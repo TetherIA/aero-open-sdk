@@ -235,6 +235,7 @@ class App(tk.Tk):
 
     def on_torque_control(self):
         # Stop CTRL_POS streaming and disable joint sliders
+        self.control_paused = True
         self.set_status("Torque control mode: stopped CTRL_POS streaming")
         for scale in self.slider_widgets:
             scale.configure(state=tk.DISABLED)
@@ -246,8 +247,8 @@ class App(tk.Tk):
     def _on_torque_slider(self, val):
         t_val = int(float(val) * 1000)
         try:
-            ack = self.hand.ctrl_torque(0, t_val)  # channel 0 for demo, adjust as needed
-            self.log(f"[TX] CTRL_TOR sent: {t_val} | [ACK] {ack}")
+            self.hand.ctrl_torque(t_val)
+            self.log(f"[TX] CTRL_TOR sent: {t_val}")
             self.set_status(f"Torque set to {t_val}")
         except Exception as e:
             self.log(f"[err] Torque set failed: {e}")
@@ -255,6 +256,7 @@ class App(tk.Tk):
 
     def disable_torque_control(self):
         # Hide torque slider and re-enable joint sliders
+        self.control_paused = False
         self.torque_frame.pack_forget()
         for scale in self.slider_widgets:
             scale.configure(state=tk.NORMAL)

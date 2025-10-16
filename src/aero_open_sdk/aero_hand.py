@@ -254,7 +254,7 @@ class AeroHand:
         id, extend = struct.unpack_from("<HH", payload, 0)
         return {"Servo ID": id, "Extend Count": extend}
     
-    def ctrl_torque(self, torque: int):
+    def ctrl_torque(self, torque: list[int]):
         """
         Set the same torque value for all 7 servos using the CTRL_TOR command.
         Args:
