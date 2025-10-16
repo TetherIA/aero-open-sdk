@@ -15,6 +15,8 @@ TRIM_MODE = 0x03
 
 ## Command Modes
 CTRL_POS = 0x11
+SET_SPE = 0x13
+SET_TOR = 0x14
 
 ## Request Modes
 GET_ALL = 0x21
@@ -195,6 +197,42 @@ class AeroHand:
         old_id, new_id, cur_limit = struct.unpack_from("<HHH", payload, 0)
         return {"Old_id": old_id, "New_id": new_id, "Current_limit": cur_limit}
     
+    def set_speed(self, channel: int, speed: int):
+        """ This fn is used by the GUI to set actuator speed """
+        if not (0 <= channel <= 6):
+            raise ValueError("channel must be 0..6")
+        if not (0 <= speed <= 32766):
+            raise ValueError("speed must be in range 0..32766")
+        try:
+            self.ser.reset_input_buffer()
+        except Exception:
+            pass
+        payload = [0] * 7
+        payload[0] = channel & 0xFFFF
+        payload[1] = speed & 0xFFFF
+        self._send_data(SET_SPE, payload)
+        payload = self._wait_for_ack(SET_SPE, 2.0)
+        id, speed_val = struct.unpack_from("<HH", payload, 0)
+        return {"Servo ID": id, "Speed": speed_val}
+
+    def set_torque(self, channel: int, torque: int):
+        """ This fn is used by the GUI to set actuator torque """
+        if not (0 <= channel <= 6):
+            raise ValueError("channel must be 0..6")
+        if not (0 <= torque <= 1023):
+            raise ValueError("torque must be in range 0..1023")
+        try:
+            self.ser.reset_input_buffer()
+        except Exception:
+            pass
+        payload = [0] * 7
+        payload[0] = channel & 0xFFFF
+        payload[1] = torque & 0xFFFF
+        self._send_data(SET_TOR, payload)
+        payload = self._wait_for_ack(SET_TOR, 2.0)
+        id, torque_val = struct.unpack_from("<HH", payload, 0)
+        return {"Servo ID": id, "Torque": torque_val}
+
     def trim_servo(self, channel: int, degrees: int):
         """This fn is used by the GUI to fine tune the actuator positions."""
         if not (0 <= channel <= 6):

@@ -137,6 +137,14 @@ class App(tk.Tk):
         self.btn_zero = ttk.Button(cmd, text="Set to Extend", command=self.on_zero_all, state=tk.DISABLED)
         self.btn_zero.pack(side=tk.LEFT, padx=(0, 10))
 
+        #Set Speed Button
+        self.btn_set_speed = ttk.Button(cmd, text="Set Speed", command=self.on_set_speed, state=tk.DISABLED)
+        self.btn_set_speed.pack(side=tk.LEFT, padx=(0, 10))
+
+        #Set Torque Button
+        self.btn_set_torque = ttk.Button(cmd, text="Set Torque", command=self.on_set_torque, state=tk.DISABLED)
+        self.btn_set_torque.pack(side=tk.LEFT, padx=(0, 10))
+
         # GET buttons
         self.btn_get_pos  = ttk.Button(cmd, text="GET_POS",  command=self.on_get_pos,  state=tk.DISABLED)
         self.btn_get_vel  = ttk.Button(cmd, text="GET_VEL",  command=self.on_get_vel,  state=tk.DISABLED)
@@ -239,7 +247,7 @@ class App(tk.Tk):
 
             self.btn_connect.configure(state=tk.DISABLED)
             self.btn_disc.configure(state=tk.NORMAL)
-            for b in (self.btn_zero,self.btn_homing, self.btn_setid, self.btn_trim,
+            for b in (self.btn_zero,self.btn_homing, self.btn_setid, self.btn_trim,self.btn_set_speed,self.btn_set_torque,
                       self.btn_get_pos, self.btn_get_vel, self.btn_get_cur, self.btn_get_temp, self.btn_get_all):
                 b.configure(state=tk.NORMAL)
 
@@ -273,7 +281,7 @@ class App(tk.Tk):
 
         self.btn_connect.configure(state=tk.NORMAL)
         self.btn_disc.configure(state=tk.DISABLED)
-        for b in (self.btn_zero,self.btn_homing, self.btn_setid, self.btn_trim,
+        for b in (self.btn_zero,self.btn_homing, self.btn_setid, self.btn_trim,self.btn_set_speed,self.btn_set_torque,
                   self.btn_get_pos, self.btn_get_vel, self.btn_get_cur, self.btn_get_temp, self.btn_get_all):
             b.configure(state=tk.DISABLED)
         self.set_status("Disconnected")
@@ -344,6 +352,62 @@ class App(tk.Tk):
             except Exception as e:
                 self.log(f"[err] SET_ID failed: {e}")
                 self.set_status("Set ID failed")
+            finally:
+                self.control_paused = False
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def on_set_speed(self):
+        if not self.hand:
+            return
+        ch = simpledialog.askinteger("Set Speed", "Servo ID / channel (0..6):",
+                                     minvalue=0, maxvalue=6, parent=self)
+        if ch is None:
+            return
+        speed = simpledialog.askinteger("Set Speed", "Speed (0..32766):",
+                                       minvalue=0, maxvalue=32766, initialvalue=32766, parent=self)
+        if speed is None:
+            return
+
+        def worker():
+            try:
+                self.control_paused = True
+                self.set_status("Setting Speed… waiting for ACK")
+                self.log(f"[TX] SET_SPEED sent (ch={ch}, speed={speed})")
+                ack = self.hand.set_speed(ch, speed)  # dict with Servo ID, Speed
+                self.log(f"[ACK] SET_SPEED: id={ack['Servo ID']} speed={ack['Speed']}")
+                self.set_status("Set Speed complete")
+            except Exception as e:
+                self.log(f"[err] SET_SPEED failed: {e}")
+                self.set_status("Set Speed failed")
+            finally:
+                self.control_paused = False
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def on_set_torque(self):
+        if not self.hand:
+            return
+        ch = simpledialog.askinteger("Set Torque", "Servo ID / channel (0..6):",
+                                     minvalue=0, maxvalue=6, parent=self)
+        if ch is None:
+            return
+        torque = simpledialog.askinteger("Set Torque", "Torque (0..1023):",
+                                        minvalue=0, maxvalue=1023, initialvalue=1023, parent=self)
+        if torque is None:
+            return
+
+        def worker():
+            try:
+                self.control_paused = True
+                self.set_status("Setting Torque… waiting for ACK")
+                self.log(f"[TX] SET_TORQUE sent (ch={ch}, torque={torque})")
+                ack = self.hand.set_torque(ch, torque)  # dict with Servo ID, Torque
+                self.log(f"[ACK] SET_TORQUE: id={ack['Servo ID']} torque={ack['Torque']}")
+                self.set_status("Set Torque complete")
+            except Exception as e:
+                self.log(f"[err] SET_TORQUE failed: {e}")
+                self.set_status("Set Torque failed")
             finally:
                 self.control_paused = False
 
