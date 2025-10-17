@@ -138,9 +138,40 @@ To integrate the SDK into your own code, refer to the `examples` folder for samp
 
 ## 🧰 Troubleshooting
 
-For common issues and solutions, please refer to our troubleshooting guide (coming soon).
+### 1. Installation Fails (`pip install` error)
 
----
+If installation fails, try the following steps:
+
+- Check your Python version:
+
+    Make sure you have Python 3.10 or higher installed.
+
+- 🔧 Upgrade pip to the latest version:
+
+    Our package requires an up-to-date version of pip.
+
+    You can upgrade pip with:
+    ```bash
+    pip install --upgrade pip
+    ```
+
+On Windows, if you see error like "pip is not recognized", use the recommended `py` launcher:
+
+    ```bash
+    py -m pip install --upgrade pip
+    ```
+
+### 2. Path Mismatch on Windows
+
+- You may not have the Python Scripts path added to your system PATH environment variable.
+
+- To fix this, you can either:
+
+  1. Add the Python Scripts directory (e.g., `C:\Users\<YourName>\AppData\Local\Programs\Python\Python310\Scripts`) to your system PATH.
+  2. Or use the recommended `py` command to launch the GUI directly:
+      ```bash
+      py -m aero_open_sdk
+      ```
 
 ## 💬 Support
 
