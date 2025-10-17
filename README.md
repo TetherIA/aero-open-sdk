@@ -155,7 +155,7 @@ If installation fails, try the following steps:
     pip install --upgrade pip
     ```
 
-On Windows, if you see error like "pip is not recognized", use the recommended `py` launcher:
+On Windows, if you see error like "pip is not recognized", use the `py` launcher command instead:
 
     ```bash
     py -m pip install --upgrade pip
@@ -168,7 +168,7 @@ On Windows, if you see error like "pip is not recognized", use the recommended `
 - To fix this, you can either:
 
   1. Add the Python Scripts directory (e.g., `C:\Users\<YourName>\AppData\Local\Programs\Python\Python310\Scripts`) to your system PATH.
-  2. Or use the recommended `py` command to launch the GUI directly:
+  2. Or use the `py` launcher command to launch the GUI directly:
       ```bash
       py -m aero_open_sdk
       ```
