@@ -172,6 +172,14 @@ On Windows, if you see error like "pip is not recognized", use the `py` launcher
       ```bash
       py -m aero_open_sdk
       ```
+  3. Create a virtual environment and install the package there.
+      ```bash
+      python -m venv venv
+      .\venv\Scripts\activate
+      pip install aero-hand-sdk
+      aero-hand-gui
+      ```
+
 
 ## 💬 Support
 
