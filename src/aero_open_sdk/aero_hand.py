@@ -106,8 +106,11 @@ class AeroHand:
             * _UINT16_MAX
             for i in range(7)
         ]
-
-        self._send_data(CTRL_POS, [int(a) for a in actuations])
+        try:
+            self._send_data(CTRL_POS, [int(a) for a in actuations])
+        except Exception as e:
+            print(f"Error while sending joint positions: {e}")
+            return
 
     def tendon_to_actuations(self, tendon_extension: float) -> float:
         """
@@ -163,7 +166,11 @@ class AeroHand:
             for i in range(7)
         ]
 
-        self._send_data(CTRL_POS, [int(a) for a in actuations])
+        try:
+            self._send_data(CTRL_POS, [int(a) for a in actuations])
+        except Exception as e:
+            print(f"Error while sending actuations: {e}")
+            return
 
     def _wait_for_ack(self, opcode: int, timeout_s: float) -> bytes:
         deadline = time.monotonic() + timeout_s
@@ -250,7 +257,11 @@ class AeroHand:
         ## Clear input buffer to avoid stale data
         self.ser.reset_input_buffer()
 
-        self._send_data(GET_POS)
+        try: 
+            self._send_data(GET_POS)
+        except Exception as e:
+            print(f"Error while writing to serial port: {e}")
+            return None
 
         ## Read the response
         resp = self.ser.read(2 + 7 * 2)  # 2
@@ -281,7 +292,11 @@ class AeroHand:
         ## Clear input buffer to avoid stale data
         self.ser.reset_input_buffer()
 
-        self._send_data(GET_CURR)
+        try: 
+            self._send_data(GET_CURR)
+        except Exception as e:
+            print(f"Error while writing to serial port: {e}")
+            return None
         
         ## Read the response, signed values
         resp = self.ser.read(2 + 7 * 2)  # 2
@@ -303,7 +318,11 @@ class AeroHand:
         """
         self.ser.reset_input_buffer()
 
-        self._send_data(GET_TEMP)
+        try: 
+            self._send_data(GET_TEMP)
+        except Exception as e:
+            print(f"Error while writing to serial port: {e}")
+            return None
         
         ## Read the response, unsigned values
         resp = self.ser.read(2 + 7 * 2)  # 2
@@ -325,7 +344,11 @@ class AeroHand:
         """
         self.ser.reset_input_buffer()
 
-        self._send_data(GET_VEL)
+        try: 
+            self._send_data(GET_VEL)
+        except Exception as e:
+            print(f"Error while writing to serial port: {e}")
+            return None
         
         ## Read the response, signed values
         resp = self.ser.read(2 + 7 * 2)  # 2
