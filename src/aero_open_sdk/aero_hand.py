@@ -268,13 +268,13 @@ class AeroHand:
         id, extend = struct.unpack_from("<HH", payload, 0)
         return {"Servo ID": id, "Extend Count": extend}
     
-    def ctrl_torque(self, torque: list[int] | int):
+    def ctrl_torque(self, torque: list[int]):
         """
         Set the same torque value for all 7 servos using the CTRL_TOR command.
         Args:
-            torque (list[int] | (int): Torque value (0..1000)
+            torque (list[int]): Torque values (0..1000)
         """
-        if not (0 <= torque <= 1000):
+        if not all(0 <= t <= 1000 for t in torque):
             raise ValueError("torque must be in range 0..1000")
         payload = [torque & 0xFFFF] * 7
         self._send_data(CTRL_TOR, payload)

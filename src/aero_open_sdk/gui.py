@@ -67,7 +67,7 @@ class App(tk.Tk):
             self.attributes("-zoomed", True)
 
         try:
-            icon_path = os.path.join(os.path.dirname(__file__), "assets", "logo.png")
+            icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "logo.png")
             icon_img = tk.PhotoImage(file=icon_path)
             self.iconphoto(True, icon_img)
         except Exception as e:
@@ -247,7 +247,7 @@ class App(tk.Tk):
     def _on_torque_slider(self, val):
         t_val = int(float(val) * 1000)
         try:
-            self.hand.ctrl_torque(t_val)
+            self.hand.ctrl_torque([t_val]*7)
             self.log(f"[TX] CTRL_TOR sent: {t_val}")
             self.set_status(f"Torque set to {t_val}")
         except Exception as e:
