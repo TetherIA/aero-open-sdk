@@ -176,8 +176,8 @@ On Windows, if you see error like "pip is not recognized", use the `py` launcher
       ```bash
       python -m venv venv
       .\venv\Scripts\activate
-      pip install aero-hand-sdk
-      aero-hand-gui
+      pip install aero-open-sdk
+      aero-open-gui
       ```
 
 
