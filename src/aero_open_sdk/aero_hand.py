@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import time 
-import serial
 import struct
+from serial import Serial, SerialException, SerialTimeoutException
 
 import numpy as np
 
@@ -36,7 +36,7 @@ _DEG_TO_RAD = 3.141592653589793 / 180.0
 class AeroHand:
     def __init__(self, port=None, baudrate=921600):
         ## Connect to serial port
-        self.ser = serial.Serial(port, baudrate, timeout=0.01, write_timeout=0.01)
+        self.ser = Serial(port, baudrate, timeout=0.01, write_timeout=0.01)
 
         ## Clean Buffers before starting
         self.ser.reset_input_buffer()
@@ -113,8 +113,8 @@ class AeroHand:
         ]
         try:
             self._send_data(CTRL_POS, [int(a) for a in actuations])
-        except Exception as e:
-            print(f"Error while sending joint positions: {e}")
+        except SerialTimeoutException as e:
+            print(f"Serial Timeout while sending joint positions: {e}")
             return
 
     def tendon_to_actuations(self, tendon_extension: float) -> float:
@@ -173,8 +173,8 @@ class AeroHand:
 
         try:
             self._send_data(CTRL_POS, [int(a) for a in actuations])
-        except Exception as e:
-            print(f"Error while sending actuations: {e}")
+        except  SerialTimeoutException as e:
+            print(f"Error while writing to serial port: {e}")
             return
 
     def _wait_for_ack(self, opcode: int, timeout_s: float) -> bytes:
@@ -323,7 +323,7 @@ class AeroHand:
 
         try: 
             self._send_data(GET_POS)
-        except Exception as e:
+        except SerialTimeoutException as e:
             print(f"Error while writing to serial port: {e}")
             return None
 
@@ -358,7 +358,7 @@ class AeroHand:
 
         try: 
             self._send_data(GET_CURR)
-        except Exception as e:
+        except SerialTimeoutException as e:
             print(f"Error while writing to serial port: {e}")
             return None
         
@@ -384,7 +384,7 @@ class AeroHand:
 
         try: 
             self._send_data(GET_TEMP)
-        except Exception as e:
+        except SerialTimeoutException as e:
             print(f"Error while writing to serial port: {e}")
             return None
         
@@ -410,7 +410,7 @@ class AeroHand:
 
         try: 
             self._send_data(GET_VEL)
-        except Exception as e:
+        except SerialTimeoutException as e:
             print(f"Error while writing to serial port: {e}")
             return None
         
