@@ -264,7 +264,7 @@ class AeroHand:
         payload[0] = id & 0xFFFF
         payload[1] = degrees & 0xFFFF  
         self._send_data(TRIM_MODE, payload)
-        payload = self._wait_for_ack(TRIM_MODE, 1.0)
+        payload = self._wait_for_ack(TRIM_MODE, 2.0)
         id, extend = struct.unpack_from("<HH", payload, 0)
         return {"Servo ID": id, "Extend Count": extend}
     
@@ -276,7 +276,7 @@ class AeroHand:
         """
         if not all(0 <= t <= 1000 for t in torque):
             raise ValueError("torque must be in range 0..1000")
-        payload = [torque & 0xFFFF] * 7
+        payload = [t & 0xFFFF for t in torque]
         self._send_data(CTRL_TOR, payload)
 
     def _send_data(self, header: int, payload: list[int] = [0] * 7):
