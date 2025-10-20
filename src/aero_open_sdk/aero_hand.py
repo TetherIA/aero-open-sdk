@@ -15,6 +15,7 @@ TRIM_MODE = 0x03
 
 ## Command Modes
 CTRL_POS = 0x11
+CTRL_TOR = 0x12
 
 ## Request Modes
 GET_ALL = 0x21
@@ -22,6 +23,10 @@ GET_POS = 0x22
 GET_VEL = 0x23
 GET_CURR = 0x24
 GET_TEMP = 0x25
+
+## Setting Modes
+SET_SPE = 0x31
+SET_TOR = 0x32
 
 _UINT16_MAX = 65535
 
@@ -195,10 +200,58 @@ class AeroHand:
         old_id, new_id, cur_limit = struct.unpack_from("<HHH", payload, 0)
         return {"Old_id": old_id, "New_id": new_id, "Current_limit": cur_limit}
     
-    def trim_servo(self, channel: int, degrees: int):
+    def set_speed(self, id: int, speed: int):
+        """ 
+        Set the speed of a specific actuator.This speed setting is max by default when the motor moves.
+        This is different from speed control mode. It only affect the dynamic of motion execution during position control.
+        Args:
+            id (int): Actuator ID (0..6)
+            speed (int): Speed value (0..32766)
+        """
+        if not (0 <= id <= 6):
+            raise ValueError("id must be 0..6")
+        if not (0 <= speed <= 32766):
+            raise ValueError("speed must be in range 0..32766")
+        try:
+            self.ser.reset_input_buffer()
+        except Exception:
+            pass
+        payload = [0] * 7
+        payload[0] = id & 0xFFFF
+        payload[1] = speed & 0xFFFF
+        self._send_data(SET_SPE, payload)
+        payload = self._wait_for_ack(SET_SPE, 2.0)
+        id, speed_val = struct.unpack_from("<HH", payload, 0)
+        return {"Servo ID": id, "Speed": speed_val}
+
+    def set_torque(self, id: int, torque: int):
+        """ 
+         Set the torque of a specific actuator. This torque setting is max by default when the motor moves.
+         This is different from torque control mode. It only affect the dynamic of motion execution during position control.
+         Args:
+            id (int): Actuator ID (0..6)
+            torque (int): Torque value (0..1000)
+        """
+        if not (0 <= id <= 6):
+            raise ValueError("id must be 0..6")
+        if not (0 <= torque <= 1000):
+            raise ValueError("torque must be in range 0..1000")
+        try:
+            self.ser.reset_input_buffer()
+        except Exception:
+            pass
+        payload = [0] * 7
+        payload[0] = id & 0xFFFF
+        payload[1] = torque & 0xFFFF
+        self._send_data(SET_TOR, payload)
+        payload = self._wait_for_ack(SET_TOR, 2.0)
+        id, torque_val = struct.unpack_from("<HH", payload, 0)
+        return {"Servo ID": id, "Torque": torque_val}
+
+    def trim_servo(self, id: int, degrees: int):
         """This fn is used by the GUI to fine tune the actuator positions."""
-        if not (0 <= channel <= 6):
-            raise ValueError("channel must be 0..6")
+        if not (0 <= id <= 6):
+            raise ValueError("id must be 0..6")
         if not (-360 <= degrees <= 360):
             raise ValueError("degrees out of range")
         
@@ -208,12 +261,23 @@ class AeroHand:
             pass
 
         payload = [0] * 7
-        payload[0] = channel & 0xFFFF
+        payload[0] = id & 0xFFFF
         payload[1] = degrees & 0xFFFF  
         self._send_data(TRIM_MODE, payload)
-        payload = self._wait_for_ack(TRIM_MODE, 1.0)
+        payload = self._wait_for_ack(TRIM_MODE, 2.0)
         id, extend = struct.unpack_from("<HH", payload, 0)
         return {"Servo ID": id, "Extend Count": extend}
+    
+    def ctrl_torque(self, torque: list[int]):
+        """
+        Set the same torque value for all 7 servos using the CTRL_TOR command.
+        Args:
+            torque (list[int]): Torque values (0..1000)
+        """
+        if not all(0 <= t <= 1000 for t in torque):
+            raise ValueError("torque must be in range 0..1000")
+        payload = [t & 0xFFFF for t in torque]
+        self._send_data(CTRL_TOR, payload)
 
     def _send_data(self, header: int, payload: list[int] = [0] * 7):
         assert self.ser is not None, "Serial port is not initialized"
