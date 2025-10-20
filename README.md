@@ -62,7 +62,7 @@ When setting up your hand for the first time, our setup GUI helps you configure 
 After installation, launch the Setup GUI with:
 
 ```bash
-aero-hand-gui
+aero-open-gui
 ```
 
 This provides an interactive interface to configure your hand.
@@ -180,6 +180,34 @@ On Windows, if you see error like "pip is not recognized", use the `py` launcher
       aero-open-gui
       ```
 
+### 3. Linux Troubleshooting: Serial Port Permission
+
+If you see a permission error when connecting to the serial port (e.g., `/dev/ttyACM0`), do the following:
+
+1. Find your username:
+   ```sh
+   whoami
+   ```
+2. Add your user to the `dialout` group (replace `yourusername` with the output from `whoami`):
+   ```sh
+   sudo usermod -a -G dialout yourusername
+   ```
+3. **Restart your system** (or log out and log back in).
+4. After restart, open a terminal and run:
+   ```sh
+   groups
+   ```
+   You should see your username and `dialout` listed.
+5. Try connecting to the serial port again in the GUI.
+
+If you still see permission errors, check device permissions with:
+```sh
+ls -l /dev/ttyACM0
+```
+You may need to temporarily set permissions:
+```sh
+sudo chmod 666 /dev/ttyACM0
+```
 
 ## 💬 Support
 
