@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import time 
 import struct
-from serial import Serial, SerialException, SerialTimeoutException
+from serial import Serial, SerialTimeoutException
 
 import numpy as np
 
@@ -372,7 +372,9 @@ class AeroHand:
             print(f"Invalid response from hand in get_actuator_currents. Expected {GET_CURR}, got {data[0]}")
             self.ser.reset_input_buffer()
             return None
-        return data[2:]
+        ## Convert to mA using the conversion factor 1 unit = 6.5 mA as per Feetech documentation
+        currents_mA = [val * 6.5 for val in data[2:]]
+        return currents_mA
 
     def get_actuator_temperatures(self):
         """
@@ -398,7 +400,9 @@ class AeroHand:
             print(f"Invalid response from hand in get_actuator_temperatures. Expected {GET_TEMP}, got {data[0]}")
             self.ser.reset_input_buffer()
             return None
-        return data[2:]
+        ## Temperatures are in degree Celsius directly
+        temperatures = [float(val) for val in data[2:]]
+        return temperatures
 
     def get_actuator_speeds(self):
         """
@@ -424,7 +428,9 @@ class AeroHand:
             print(f"Invalid response from hand in get_actuator_speeds. Expected {GET_VEL}, got {data[0]}")
             self.ser.reset_input_buffer()
             return None
-        return data[2:]
+        ## Convert to RPM using the conversion factor 1 unit = 0.732 RPM as per Feetech documentation
+        speeds_rpm = [val * 0.732 for val in data[2:]]
+        return speeds_rpm
 
     def close(self):
         self.ser.close()
