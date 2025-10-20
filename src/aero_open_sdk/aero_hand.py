@@ -173,7 +173,7 @@ class AeroHand:
 
         try:
             self._send_data(CTRL_POS, [int(a) for a in actuations])
-        except  SerialTimeoutException as e:
+        except SerialTimeoutException as e:
             print(f"Error while writing to serial port: {e}")
             return
 
