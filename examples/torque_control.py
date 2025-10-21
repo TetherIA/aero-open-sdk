@@ -8,7 +8,7 @@ if __name__ == "__main__":
     )
 
     # Note : This example demonstrates torque control for a robotic hand where you can try to grasp objects by applying varying torque values to the actuators 
-    # or you can simply see the effect of torque control on the hand's movement by doing a handshake with the robotic hand.
+    # or you can simply feel the effect of torque control on the hand's movement by doing a handshake with the robotic hand.
     # Adjust the time.sleep() values to change the speed of torque variation and hold and release durations.
     # Sweep torque value for all 7 actuators from 0 to 1000 and back, then pause at each end
     torque = 0
