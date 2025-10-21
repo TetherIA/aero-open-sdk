@@ -7,6 +7,7 @@ import numpy as np
 
 from aero_open_sdk.aero_hand_constants import AeroHandConstants
 from aero_open_sdk.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
+from aero_open_sdk.actuations_to_joints import ActuationsToJointsModel
 
 ## Setup Modes
 HOMING_MODE = 0x01
@@ -53,6 +54,7 @@ class AeroHand:
         self.actuation_upper_limits = aero_hand_constants.actuation_upper_limits
 
         self.joints_to_actuations_model = JointsToActuationsModel()
+        self.actuations_to_joints_model = ActuationsToJointsModel()
 
     def create_trajectory(self, trajectory: list[tuple]) -> list:
         rate = 100  # Hz
@@ -311,6 +313,27 @@ class AeroHand:
 
     def get_joint_positions(self):
         raise NotImplementedError("This method is not yet implemented")
+    
+    def get_joint_positions_compact(self):
+        """
+        Get the joint positions from the hand in the compact 7 joint representation.
+        Returns:
+            list: A list of 7 joint positions. (degrees)
+        """
+        actuations = self.get_actuations()
+        ## If there was an error getting actuations, return None
+        if actuations is None:
+            return None
+        ## Convert to radians
+        actuations = [act * _DEG_TO_RAD for act in actuations]
+
+        ## Get Joint Positions
+        joint_positions = self.actuations_to_joints_model.hand_joints(actuations)
+
+        ## Convert to degrees
+        joint_positions = [pos * _RAD_TO_DEG for pos in joint_positions]
+
+        return joint_positions
 
     def get_actuations(self):
         """
