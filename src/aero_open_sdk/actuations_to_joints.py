@@ -8,9 +8,13 @@ from aero_open_sdk.joints_to_actuations import (
 from aero_open_sdk.aero_hand_constants import AeroHandConstants
 
 
-class ActuationsToJointsModel:
+class ActuationsToJointsModelCompact:
     """
-    A model to convert actuator movements to joint positions for the Aero Hand Open.
+    A model to convert actuator movements to joint compact representation for the Aero Hand Open.
+    Our compact joint representation is described at: https://docs.tetheria.ai/docs/sdk#compact-joint-representation
+    This representation uses 3 values for the thumb (CMC abduction, CMC flexion, MCP/IP combined)
+    and 1 value for each finger (MCP, PIP, DIP combined).
+    Thus, the total joint positions are represented using 7 values.
     """
 
     def __init__(self) -> None:
