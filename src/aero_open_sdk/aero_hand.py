@@ -21,7 +21,7 @@ import numpy as np
 
 from aero_open_sdk.aero_hand_constants import AeroHandConstants
 from aero_open_sdk.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
-from aero_open_sdk.actuations_to_joints import ActuationsToJointsModel
+from aero_open_sdk.actuations_to_joints import ActuationsToJointsModelCompact
 
 ## Setup Modes
 HOMING_MODE = 0x01
@@ -68,7 +68,7 @@ class AeroHand:
         self.actuation_upper_limits = aero_hand_constants.actuation_upper_limits
 
         self.joints_to_actuations_model = JointsToActuationsModel()
-        self.actuations_to_joints_model = ActuationsToJointsModel()
+        self.actuations_to_joints_model = ActuationsToJointsModelCompact()
 
     def create_trajectory(self, trajectory: list[tuple]) -> list:
         rate = 100  # Hz
