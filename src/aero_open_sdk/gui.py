@@ -187,7 +187,7 @@ class App(tk.Tk):
             var = tk.DoubleVar(value=0.0)
             self.slider_vars.append(var)
             scale = tk.Scale(row, from_=0.0, to=1.0, orient=tk.HORIZONTAL, length=600,
-                             resolution=0.001, variable=var, showvalue=True)
+                              resolution=0.001, variable=var, showvalue=True, font=mono_font)
             scale.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(6, 6))
             self.slider_widgets.append(scale)
             max_lbl = ttk.Label(row, text="1.000", width=8, font=mono_font)
@@ -373,7 +373,7 @@ class App(tk.Tk):
                 self.control_paused = True
                 self.set_status("Homing in process… waiting for ACK")
                 self.log("[TX] HOMING sent (0x01). Waiting for 16-byte ACK…")
-                ok = self.hand.send_homing(timeout_s=100.0)
+                ok = self.hand.send_homing(timeout_s=175.0)
                 if ok:
                     self.log("[ACK] HOMING complete.")
                     self.set_status("Homing complete")
@@ -447,8 +447,8 @@ class App(tk.Tk):
                                      minvalue=0, maxvalue=6, parent=self)
         if ch is None:
             return
-        torque = simpledialog.askinteger("Set Torque", "Torque (0..1023):",
-                                        minvalue=0, maxvalue=1023, initialvalue=1023, parent=self)
+        torque = simpledialog.askinteger("Set Torque", "Torque (0..1000):",
+                                        minvalue=0, maxvalue=1000, initialvalue=1023, parent=self)
         if torque is None:
             return
 
