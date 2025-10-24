@@ -16,8 +16,7 @@
 import time 
 import struct
 from serial import Serial, SerialTimeoutException
-
-import numpy as np
+from typing import Iterator
 
 from aero_open_sdk.aero_hand_constants import AeroHandConstants
 from aero_open_sdk.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
@@ -70,16 +69,21 @@ class AeroHand:
         self.joints_to_actuations_model = JointsToActuationsModel()
         self.actuations_to_joints_model = ActuationsToJointsModelCompact()
 
-    def create_trajectory(self, trajectory: list[tuple]) -> list:
+    def create_trajectory(self, trajectory: list[tuple[list[float], float]]) -> Iterator[list[float]]:
         rate = 100  # Hz
-        traj = []
-        for i, (keypoint, duration) in enumerate(trajectory):
-            if i == 0: continue
+
+        def _interp_keypoints(start, end, t):
+            return [start[i] + t * (end[i] - start[i]) for i in range(len(start))]
+
+        for i in range(1, len(trajectory)):
+            prev_keypoint, _ = trajectory[i - 1]
+            curr_keypoint, duration = trajectory[i]
+
             num_steps = int(duration * rate)
-            interpolated_vals = np.linspace(trajectory[i-1][0], keypoint, num_steps)
-            traj.extend(interpolated_vals)
-        traj = np.array(traj).tolist()
-        return traj
+
+            for step in range(1, num_steps + 1):
+                t = step / num_steps
+                yield _interp_keypoints(prev_keypoint, curr_keypoint, t)
 
     def run_trajectory(self, trajectory: list):
         ## Linerly interpolate between trajectory points
