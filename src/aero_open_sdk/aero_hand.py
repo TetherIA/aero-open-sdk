@@ -1,12 +1,26 @@
 #!/usr/bin/env python3
+# Copyright 2025 TetherIA, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import time 
 import struct
 from serial import Serial, SerialTimeoutException
-
-import numpy as np
+from typing import Iterator
 
 from aero_open_sdk.aero_hand_constants import AeroHandConstants
 from aero_open_sdk.joints_to_actuations import MOTOR_PULLEY_RADIUS, JointsToActuationsModel
+from aero_open_sdk.actuations_to_joints import ActuationsToJointsModelCompact
 
 ## Setup Modes
 HOMING_MODE = 0x01
@@ -53,17 +67,23 @@ class AeroHand:
         self.actuation_upper_limits = aero_hand_constants.actuation_upper_limits
 
         self.joints_to_actuations_model = JointsToActuationsModel()
+        self.actuations_to_joints_model = ActuationsToJointsModelCompact()
 
-    def create_trajectory(self, trajectory: list[tuple]) -> list:
+    def create_trajectory(self, trajectory: list[tuple[list[float], float]]) -> Iterator[list[float]]:
         rate = 100  # Hz
-        traj = []
-        for i, (keypoint, duration) in enumerate(trajectory):
-            if i == 0: continue
+
+        def _interp_keypoints(start, end, t):
+            return [start[i] + t * (end[i] - start[i]) for i in range(len(start))]
+
+        for i in range(1, len(trajectory)):
+            prev_keypoint, _ = trajectory[i - 1]
+            curr_keypoint, duration = trajectory[i]
+
             num_steps = int(duration * rate)
-            interpolated_vals = np.linspace(trajectory[i-1][0], keypoint, num_steps)
-            traj.extend(interpolated_vals)
-        traj = np.array(traj).tolist()
-        return traj
+
+            for step in range(1, num_steps + 1):
+                t = step / num_steps
+                yield _interp_keypoints(prev_keypoint, curr_keypoint, t)
 
     def run_trajectory(self, trajectory: list):
         ## Linerly interpolate between trajectory points
@@ -311,6 +331,27 @@ class AeroHand:
 
     def get_joint_positions(self):
         raise NotImplementedError("This method is not yet implemented")
+    
+    def get_joint_positions_compact(self):
+        """
+        Get the joint positions from the hand in the compact 7 joint representation.
+        Returns:
+            list: A list of 7 joint positions. (degrees)
+        """
+        actuations = self.get_actuations()
+        ## If there was an error getting actuations, return None
+        if actuations is None:
+            return None
+        ## Convert to radians
+        actuations = [act * _DEG_TO_RAD for act in actuations]
+
+        ## Get Joint Positions
+        joint_positions = self.actuations_to_joints_model.hand_joints(actuations)
+
+        ## Convert to degrees
+        joint_positions = [pos * _RAD_TO_DEG for pos in joint_positions]
+
+        return joint_positions
 
     def get_actuations(self):
         """
