@@ -46,25 +46,33 @@ class JointsToActuationsModel:
         self.thumb_flex_coeffs = ThumbFlexCoeffs()
         self.thumb_ip_coeffs = ThumbIPCoeffs()
 
-    def finger_actuations(self, mcp_flex: float, pip: float, dip: float) -> float:
-        ## Finger Tendon Linear Actuation Model
-        ## finger_tendon = mcp_flex_coeff * mcp_flex + pip_coeff * pip + dip_coeff * dip
-        return (
-            self.finger_coeffs.mcp_flex_coeff * mcp_flex
-            + self.finger_coeffs.pip_coeff * pip
-            + self.finger_coeffs.dip_coeff * dip
-        ) / MOTOR_PULLEY_RADIUS
     
-    def finger_actuations_complex(self, mcp_flex: float, pip: float, dip: float) -> float:
+    def finger_actuations(self, mcp_flex: float, pip: float, dip: float) -> float:
         """
         three-order polynomial finger actuator model (20 parameters, including all cross terms)
+        The input is in radians
         """
-
-        mcp_flex_rad = np.deg2rad(mcp_flex)
-        pip_rad = np.deg2rad(pip)
-        dip_rad = np.deg2rad(dip)
         
 
+        # This is the 3rd order polynomial model (9 parameters) - including all cross terms
+        # 
+        # model structure:
+        # actuator_angle = (c0*mcp + c1*pip + c2*dip + c3*mcp² + c4*pip² + c5*dip² + c6*mcp³ + c7*pip³ + c8*dip³) / radius
+        #
+        # where:
+        # - mcp, pip, dip: joint angles (radians)
+        # - c0-c8: 9 polynomial coefficients
+        # - radius: motor pulley radius
+        #
+        # Simplification strategy:
+        # - PIP and DIP use the same coefficients (average value)
+        # - first order term: c1*pip + c2*dip → (c1+c2)/2 * (pip + dip)
+        # - second order term: c4*pip² + c5*dip² → (c4+c5)/2 * (pip² + dip²)  
+        # - third order term: c7*pip³ + c8*dip³ → (c7+c8)/2 * (pip³ + dip³)
+        #
+        # final expression:
+        # actuator = c0*mcp + (c1+c2)/2*pip + (c1+c2)/2*dip + c3*mcp² + (c4+c5)/2*pip² + (c4+c5)/2*dip² + c6*mcp³ + (c7+c8)/2*pip³ + (c7+c8)/2*dip³
+        
         return np.rad2deg(
             self.finger_coeffs.poly3_coeffs_9[0] * mcp_flex_rad
             + (self.finger_coeffs.poly3_coeffs_9[1]+self.finger_coeffs.poly3_coeffs_9[2])/2 * pip_rad
