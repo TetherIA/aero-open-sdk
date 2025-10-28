@@ -6,21 +6,21 @@
 <div align="center">
 
 [![Python Version](https://img.shields.io/pypi/pyversions/aero-open-sdk)](https://www.python.org/downloads/)
-[![PyPI Version](https://img.shields.io/pypi/v/aero-open-sdk)](https://pypi.org/project/aero-hand-sdk/)
+[![PyPI Version](https://img.shields.io/pypi/v/aero-open-sdk)](https://pypi.org/project/aero-open-sdk/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/pypi/status/aero-open-sdk)](https://pypi.org/project/aero-hand-sdk/)
+[![Status](https://img.shields.io/pypi/status/aero-open-sdk)](https://pypi.org/project/aero-open-sdk/)
 [![Build](https://img.shields.io/github/actions/workflow/status/TetherIA/aero-open-sdk/test.yml?branch=main)](https://github.com/TetherIA/aero-open-sdk/actions)
 [![TetherIA](https://img.shields.io/badge/Developed%20by-TetherIA.ai-0A66C2)](https://tetheria.ai)
 
 </div>
 
 <h2 align="center">
-  <p>Aero Hand SDK — Python Interface for TetherIA's Robotic Hand</p>
+  <p>Aero Open SDK — Python Interface for TetherIA's Robotic Hand</p>
 </h2>
 
 <div align="center">
   <img src="assets/banner.jpg" alt="Aero Hand Demo" title="Aero Hand in action" width="70%"/>
-  <p><strong>Aero Hand Open</strong> is a 7-DoF tendon-driven robotic hand for dexterous manipulation and research.</p>
+  <p><strong>Aero Open Hand</strong> is a 7-DoF tendon-driven robotic hand for dexterous manipulation and research.</p>
   <p>The SDK enables full control via Python. Perform homing, calibration, and precise motion control with ease.</p>
 </div>
 
@@ -33,7 +33,7 @@ The SDK is currently tested for Python 3.10 and above.
 ### 📦 Install via pip
 
 ```bash
-pip install aero-hand-sdk
+pip install aero-open-sdk
 ```
 
 ### 🧩 Install from source (editable mode)
