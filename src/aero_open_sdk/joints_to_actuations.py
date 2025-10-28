@@ -74,15 +74,15 @@ class JointsToActuationsModel:
         # actuator = c0*mcp + (c1+c2)/2*pip + (c1+c2)/2*dip + c3*mcp² + (c4+c5)/2*pip² + (c4+c5)/2*dip² + c6*mcp³ + (c7+c8)/2*pip³ + (c7+c8)/2*dip³
         
         return np.rad2deg(
-            self.finger_coeffs.poly3_coeffs_9[0] * mcp_flex_rad
-            + (self.finger_coeffs.poly3_coeffs_9[1]+self.finger_coeffs.poly3_coeffs_9[2])/2 * pip_rad
-            + (self.finger_coeffs.poly3_coeffs_9[1]+self.finger_coeffs.poly3_coeffs_9[2])/2 * dip_rad
-            + self.finger_coeffs.poly3_coeffs_9[3] * mcp_flex_rad**2
-            + (self.finger_coeffs.poly3_coeffs_9[4]+self.finger_coeffs.poly3_coeffs_9[5])/2 * pip_rad**2
-            + (self.finger_coeffs.poly3_coeffs_9[4]+self.finger_coeffs.poly3_coeffs_9[5])/2 * dip_rad**2
-            + self.finger_coeffs.poly3_coeffs_9[6] * mcp_flex_rad**3
-            + (self.finger_coeffs.poly3_coeffs_9[7]+self.finger_coeffs.poly3_coeffs_9[8])/2 * pip_rad**3
-            + (self.finger_coeffs.poly3_coeffs_9[7]+self.finger_coeffs.poly3_coeffs_9[8])/2 * dip_rad**3
+            self.finger_coeffs.poly3_coeffs_9[0] * mcp_flex
+            + (self.finger_coeffs.poly3_coeffs_9[1]+self.finger_coeffs.poly3_coeffs_9[2])/2 * pip
+            + (self.finger_coeffs.poly3_coeffs_9[1]+self.finger_coeffs.poly3_coeffs_9[2])/2 * dip
+            + self.finger_coeffs.poly3_coeffs_9[3] * mcp_flex**2
+            + (self.finger_coeffs.poly3_coeffs_9[4]+self.finger_coeffs.poly3_coeffs_9[5])/2 * pip**2
+            + (self.finger_coeffs.poly3_coeffs_9[4]+self.finger_coeffs.poly3_coeffs_9[5])/2 * dip**2
+            + self.finger_coeffs.poly3_coeffs_9[6] * mcp_flex**3
+            + (self.finger_coeffs.poly3_coeffs_9[7]+self.finger_coeffs.poly3_coeffs_9[8])/2 * pip**3
+            + (self.finger_coeffs.poly3_coeffs_9[7]+self.finger_coeffs.poly3_coeffs_9[8])/2 * dip**3
         ) / MOTOR_PULLEY_RADIUS
 
 
