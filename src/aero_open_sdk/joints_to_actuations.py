@@ -14,8 +14,6 @@
 # limitations under the License.
 
 from dataclasses import dataclass, field
-
-from numpy.ma import cos
 import numpy as np
 
 MOTOR_PULLEY_RADIUS = 9.200 # mm
@@ -39,8 +37,7 @@ class FingerCoeffs:
     -0.5974463990747414, 
     -0.9558290953598836])
 
-    def __post_init__(self):
-        pass
+
 @dataclass
 class ThumbFlexCoeffs:
     cmc_abd_coeff: float = 2.5000
